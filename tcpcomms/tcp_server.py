@@ -1,7 +1,8 @@
 import socket
 import threading
 from concurrent.futures import thread
-
+import cv2
+# todo: use inputParser?
 
 class TCPServer:
     # socket.gethostbyname(socket.gethostname())
@@ -19,7 +20,11 @@ class TCPServer:
             "START_CAPTURE": self.handle_start,
             "STOP_SERVER": self.handle_stop,
             "STATUS": self.handle_status,
+            "SHOW_CAM_FEED_LOCAL": self.handle_local_stream,
         }
+
+        self.webcam = cv2.VideoCapture(0)
+
 
     def start(self):
         def run():
@@ -76,11 +81,24 @@ class TCPServer:
         self.stop()
     def handle_status(self, conn, addr):
         conn.sendall(b"ACK:STATUS:RUNNING\n")
-    def status(self, conn, addr):
+    def get_status(self, conn, addr):
         print(self.status)
         return self.status
+    def handle_local_stream(self, conn, addr):
+        cv2.namedWindow("preview")
+        if self.webcam.isOpened():
+            rval, frame = self.webcam.read()
+        else:
+            rval = False
 
-
+        while rval:
+            cv2.imshow("preview", frame)
+            rval, frame = self.webcam.read()
+            key = cv2.waitKey(20)
+            if key == 27:
+                break
+        cv2.destroyWindow("preview")
+        self.webcam.release()
 
 listener = TCPServer()
 listener.start()
