@@ -6,12 +6,20 @@ from concurrent.futures import thread
 class TCPServer:
     # socket.gethostbyname(socket.gethostname())
     def __init__(self, host='0.0.0.0', port=9999, command_router=None):
+        self.status = 'STANDBY'
         self.host = host
         self.port = port
         self.command_router = command_router or self.default_router
         self.stop_event = threading.Event()
         self.server_thread = None
         self.conn = None
+        self.handler = None
+
+        self.command_map = {
+            "START_CAPTURE": self.handle_start,
+            "STOP_SERVER": self.handle_stop,
+            "STATUS": self.handle_status,
+        }
 
     def start(self):
         def run():
@@ -24,8 +32,8 @@ class TCPServer:
                 try:
                     while not self.stop_event.is_set():
                         try:
-                            conn, addr = s.accept()
-                            threading.Thread(target=self.handle_client, args=(conn, addr), daemon=True).start()
+                            self.conn, addr = s.accept()
+                            threading.Thread(target=self.handle_client, args=(self.conn, addr), daemon=True).start()
                         except socket.timeout:
                             continue
                 finally:
@@ -33,7 +41,12 @@ class TCPServer:
 
         self.server_thread = threading.Thread(target=run, daemon=True)
         self.server_thread.start()
-
+        self.status = 'RUNNING'
+    def stop(self):
+        self.stop_event.set()
+        if self.server_thread:
+            self.server_thread.join()
+        self.status = 'STOPPED'
     def handle_client(self, conn, addr): # parses messages to the command_router
         print(f"[+] Connection from {addr}")
         with conn:
@@ -46,26 +59,27 @@ class TCPServer:
                     self.command_router(message, conn, addr)
             except Exception as e:
                 print(f"[!] Error handling client {addr}: {e}")
-
-    def stop(self):
-        self.stop_event.set()
-        if self.server_thread:
-            self.server_thread.join()
-
     def default_router(self, message, conn, addr):
+        self.handler = self.command_map.get(message)
+        if self.handler:
+            self.handler(conn, addr)
+            self.handler = None # should we restart it?
+        else:
+            conn.sendall(b"NACK:UNKNOWN_COMMAND\n")
         print(f"[>] Received from {addr}: {message}")
         conn.sendall(b"ACK:DEFAULT_HANDLER\n")
-
-    def handle_start(conn, addr):
+    def handle_start(self, conn, addr):
         conn.sendall(b"ACK:START_CAPTURE\n")
-        # TODO: start aquisition or stream to network via ndi
-
+        # TODO: start acquisition or stream to network via ndi
     def handle_stop(self, conn, addr):
         conn.sendall(b"ACK:STOPPING\n")
-        server.stop()
-
-    def handle_status(conn, addr):
+        self.stop()
+    def handle_status(self, conn, addr):
         conn.sendall(b"ACK:STATUS:RUNNING\n")
+    def status(self, conn, addr):
+        print(self.status)
+        return self.status
+
 
 
 listener = TCPServer()
@@ -75,4 +89,8 @@ try:
     threading.Event().wait()
 except KeyboardInterrupt:
     print("[!] Received CTRL-C")
+    try:
+        listener.stop()
+    finally:
+        print('process already stopped')
     listener.stop()
