@@ -1,5 +1,11 @@
 
-
+# Copyright (c) 2025, Diogo Duarte @ AIxlab-D^3-NSBE-NMS
+# SPDX-License-Identifier: BSD-2-Clause
+#
+"""
+Logger class for logging messages to a file.
+This class provides methods to log messages and set a custom log file.
+"""
 class Logger():
 
     log_file = r"./experiment.log"

@@ -1,0 +1,6 @@
+# Owl sound stream configuration
+
+paths:
+  owlsound:
+    runOnInit: ${FFMPEG_BIN} -i <OWLSOUND_SOURCE> -f rtsp -rtsp_transport tcp rtsp://localhost:8553/owlsound
+    runOnInitRestart: yes

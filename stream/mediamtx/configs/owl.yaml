@@ -1,0 +1,6 @@
+# Owl stream configuration
+
+paths:
+  owl:
+    runOnInit: ${FFMPEG_BIN} -i <OWL_SOURCE> -f rtsp -rtsp_transport tcp rtsp://localhost:8553/owl
+    runOnInitRestart: yes

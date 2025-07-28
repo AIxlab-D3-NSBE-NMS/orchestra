@@ -1,0 +1,6 @@
+# PC sound stream configuration
+
+paths:
+  pcsound:
+    runOnInit: ${FFMPEG_BIN} -f alsa -i default -f rtsp -rtsp_transport tcp rtsp://localhost:8553/pcsound
+    runOnInitRestart: yes

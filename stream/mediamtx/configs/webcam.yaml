@@ -1,0 +1,6 @@
+# Webcam stream configuration
+
+paths:
+  webcam:
+    runOnInit: ${FFMPEG_BIN} -f v4l2 -framerate 30 -video_size 1280x720 -i /dev/video0 -c:v h264_nvenc -preset llhp -g 30 -rc cbr -b:v 2M -pix_fmt yuv420p -zerolatency 1 -f rtsp -rtsp_transport tcp rtsp://localhost:8553/webcam
+    runOnInitRestart: yes
