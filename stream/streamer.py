@@ -31,11 +31,13 @@ class Streamer:
 
         self.process = None
         self.thread = None
+        self.pid = None
 
     def _run_process(self):
         print(f"Starting MediaMTX with config: {self.config_path}")
         command = str(self.mediamtx_path) + ' ' + str(self.config_path)
-        self.process = subprocess.run(command.split(" "), capture_output=False)
+        self.process = subprocess.Popen(command.split(" "))
+        self.pid = self.process.pid
         # this works, maybe it needs some time to cleanup= self.process = subprocess.run(command.split(" "))
         # self.process = subprocess.run(command.split(" "), capture_output=True, text=True) this does not work
         # self.process = subprocess.run(command.split(" "), capture_output=True, text=False) this also does not work
@@ -63,6 +65,7 @@ class Streamer:
     def stop(self):
         if self.process and self.process.poll() is None:
             print(f"Terminating process PID: {self.process.pid}")
+            self.thread.join()
             self.process.terminate()
             try:
                 self.process.wait(timeout=5)
