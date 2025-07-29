@@ -11,7 +11,7 @@ def handle_client(conn, addr):
         data = conn.recv(1024).decode().strip()
         print(f"[>] Received: {data}")
         if data == "START_CAPTURE":
-            print("[✓] Trigger received: START_CAPTURE")zz
+            print("[✓] Trigger received: START_CAPTURE")
             conn.sendall(b"ACK:START_CAPTURE\n")
         else:
             print("[!] Unknown command")

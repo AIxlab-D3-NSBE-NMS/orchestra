@@ -6,10 +6,11 @@
     "configurations": [
         {
             "name": "Python Debugger: Current File",
-            "type": "debugpy",
+            "type": "python", // Use "python" for Python 2.x default is debugpy
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "internalConsole",// Use "integratedTerminal" for terminal output
+            "justMyCode": false
         }
     ]
 }

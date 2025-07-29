@@ -27,6 +27,8 @@ class Streamer:
         self.mediamtx_path = (Path(__file__).parent / 'mediamtx' / exe_name).resolve()
         
         self.config_path = (Path(__file__).parent / 'mediamtx' / 'configs' / STREAM_CONFIGS.get(self.kind)).resolve()
+
+        self.process = None
         
     def start(self):
         if not self.kind:
@@ -38,11 +40,10 @@ class Streamer:
         if not self.config_path.exists():
             raise FileNotFoundError(f"Configuration file not found at {self.config_path}")
         
-        command = [str(self.mediamtx_path), str(self.config_path)]
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.process = process.pid
-        print(f"Started process PID: {process.pid}")
-        stdout, stderr = process.communicate()
+        command = str(self.mediamtx_path) + ' ' + str(self.config_path)
+        self.process = subprocess.Popen(command.split(" "))
+        print(f"Started process PID: {self.process.pid}")
+        stdout, stderr = self.process.communicate()
         print("Output:\n", stdout.decode())
         print("Errors:\n", stderr.decode())
 

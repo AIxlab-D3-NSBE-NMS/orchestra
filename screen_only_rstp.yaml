@@ -144,7 +144,7 @@ authJWTInHTTPQuery: true
 # Enable controlling the server through the Control API.
 api: yes # no
 # Address of the Control API listener.
-apiAddress: 127.0.0.1:9997
+apiAddress: :9997
 # Enable TLS/HTTPS on the Control API server.
 apiEncryption: no
 # Path to the server key. This is needed only when encryption is yes.
