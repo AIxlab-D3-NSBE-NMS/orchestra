@@ -4,6 +4,7 @@ from pathlib import Path
 import subprocess
 import threading
 
+# TODO: SIMPLIFY by using either Popen or Threading, not both
 
 if sys.platform.startswith("win"):
     os.environ["FFMPEG_BIN"] = str(Path(__file__).parent / "mediamtx" / "ffmpeg.exe")
