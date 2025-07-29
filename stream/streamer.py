@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 import threading
 
-# TODO: SIMPLIFY by using either Popen or Threading, not both
+# TODO: SIMPLIFY by using either Popen or Threading, not both; reidirect stdout 
 
 if sys.platform.startswith("win"):
     os.environ["FFMPEG_BIN"] = str(Path(__file__).parent / "mediamtx" / "ffmpeg.exe")
@@ -58,9 +58,11 @@ class Streamer:
         if not self.config_path.exists():
             raise FileNotFoundError(f"Configuration file not found at {self.config_path}")
         
-        self.thread = threading.Thread(target=self._run_process, daemon=True)
-        print(f"Starting thread for {self.kind} stream.")
-        self.thread.start()
+        self._run_process()
+        
+        # # self.thread = threading.Thread(target=self._run_process, daemon=True)
+        # print(f"Starting thread for {self.kind} stream.")
+        # self.thread.start()
 
 
     def stop(self):
