@@ -12,4 +12,4 @@ screen = Streamer("screen")
 
 screen.start()
 
-screen.stop()
+

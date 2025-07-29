@@ -2,6 +2,7 @@ import os
 import sys 
 from pathlib import Path
 import subprocess
+import threading
 
 
 if sys.platform.startswith("win"):
@@ -29,7 +30,21 @@ class Streamer:
         self.config_path = (Path(__file__).parent / 'mediamtx' / 'configs' / STREAM_CONFIGS.get(self.kind)).resolve()
 
         self.process = None
-        
+        self.thread = None
+
+    def _run_process(self):
+        print(f"Starting MediaMTX with config: {self.config_path}")
+        command = str(self.mediamtx_path) + ' ' + str(self.config_path)
+        self.process = subprocess.run(command.split(" "), capture_output=False)
+        # this works, maybe it needs some time to cleanup= self.process = subprocess.run(command.split(" "))
+        # self.process = subprocess.run(command.split(" "), capture_output=True, text=True) this does not work
+        # self.process = subprocess.run(command.split(" "), capture_output=True, text=False) this also does not work
+        # self.process = subprocess.run(command.split(" "), capture_output=False, text=False) also no
+        print(f"Started process PID: {self.process.pid}")
+        # stdout, stderr = self.process.communicate()
+        # print("Output:\n", stdout.decode())
+        # print("Errors:\n", stderr.decode())
+
     def start(self):
         if not self.kind:
             raise ValueError("Stream kind must be specified.")
@@ -40,12 +55,9 @@ class Streamer:
         if not self.config_path.exists():
             raise FileNotFoundError(f"Configuration file not found at {self.config_path}")
         
-        command = str(self.mediamtx_path) + ' ' + str(self.config_path)
-        self.process = subprocess.run(command.split(" "), capture_output=True)
-        print(f"Started process PID: {self.process.pid}")
-        stdout, stderr = self.process.communicate()
-        print("Output:\n", stdout.decode())
-        print("Errors:\n", stderr.decode())
+        self.thread = threading.Thread(target=self._run_process, daemon=True)
+        print(f"Starting thread for {self.kind} stream.")
+        self.thread.start()
 
 
     def stop(self):
