@@ -11,3 +11,5 @@ from stream.streamer import Streamer
 screen = Streamer("screen")
 
 screen.start()
+
+screen.stop()

@@ -41,7 +41,7 @@ class Streamer:
             raise FileNotFoundError(f"Configuration file not found at {self.config_path}")
         
         command = str(self.mediamtx_path) + ' ' + str(self.config_path)
-        self.process = subprocess.Popen(command.split(" "))
+        self.process = subprocess.run(command.split(" "), capture_output=True)
         print(f"Started process PID: {self.process.pid}")
         stdout, stderr = self.process.communicate()
         print("Output:\n", stdout.decode())
