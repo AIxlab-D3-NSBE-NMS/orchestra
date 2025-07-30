@@ -729,7 +729,23 @@ pathDefaults:
 # for example "~^prefix" will match all paths that start with "prefix".
 paths:
   screen:
-    runOnInit: /usr/bin/ffmpeg -f x11grab -video_size 3840x2400 -framerate 30 -i :0.0 -c:v h264_nvenc -preset llhp -g 30 -pix_fmt yuv420p -f rtsp -rtsp_transport tcp rtsp://localhost:8553/screen
+    #runOnInit: /usr/bin/ffmpeg -f x11grab -video_size 3840x2400 -framerate 30 -i :0.0 -c:v h264_nvenc -preset llhp -g 30 -pix_fmt yuv420p -f rtsp -rtsp_transport tcp rtsp://localhost:8553/screen
+    runOnInit: /usr/bin/ffmpeg 
+      -f x11grab 
+      -video_size 3840x2400 
+      -framerate 30 
+      -probesize 300M 
+      -i :0.0 
+      -c:v hevc_nvenc 
+      -preset p5 
+      -g 30
+      -rc cbr
+      -b:v 5M
+      -maxrate 5M
+      -bufsize 30M 
+      -pix_fmt yuv420p 
+      -f rtsp 
+      -rtsp_transport tcp rtsp://localhost:8553/screen
     runOnInitRestart: yes
 
   # example:
