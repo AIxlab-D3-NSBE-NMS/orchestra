@@ -1,0 +1,2 @@
+curl -X PATCH http://127.0.0.1:9997/v3/config/pathdefaults/patch -H "Content-T application/json" -d '{"record": true}'
+curl -X PATCH http://127.0.0.1:9997/v3/config/pathdefaults/patch -H "Content-T application/json" -d '{"record": false}'
