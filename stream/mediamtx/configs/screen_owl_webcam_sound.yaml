@@ -730,8 +730,10 @@ pathDefaults:
 paths:
   screen:
     runOnInit: /home/labadmin/aixlab/code/orchestra/stream/mediamtx/ffmpeg 
+        -fflags +genpts -use_wallclock_as_timestamps 1
         -f x11grab 
         -video_size 3840x2400 
+        -thread_queue_size 1024
         -framerate 30 
         -i :0.0 
         -c:v h264_nvenc 
@@ -740,7 +742,49 @@ paths:
         -pix_fmt yuv420p 
         -f rtsp -rtsp_transport tcp rtsp://localhost:8553/screen
     runOnInitRestart: yes
-
+  owl:
+    runOnInit: /home/labadmin/aixlab/code/orchestra/stream/mediamtx/ffmpeg 
+        -fflags +genpts -use_wallclock_as_timestamps 1
+        -f v4l2 
+        -framerate 30 
+        -video_size 2560x1440 
+        -thread_queue_size 1024
+        -probesize 500M
+        -input_format mjpeg 
+        -i /dev/video4
+        -f alsa
+        -thread_queue_size 1024
+        -i hw:1,0
+        -vf "format=yuv420p" 
+        -c:v libx264 
+        -preset veryfast 
+        -tune zerolatency 
+        -pix_fmt yuv420p 
+        -c:a aac
+        -b:a 128k
+        -f rtsp rtsp://localhost:8553/owlstream
+  webcam:
+    runOnInit: /home/labadmin/aixlab/code/orchestra/stream/mediamtx/ffmpeg
+        -fflags +genpts -use_wallclock_as_timestamps 1
+        -f v4l2 
+        -framerate 30 
+        -video_size 1280x720
+        -thread_queue_size 1024
+        -i /dev/video0
+        -f alsa
+        -thread_queue_size 1024
+        -i plughw:0,6
+        -c:v h264_nvenc 
+        -preset llhp 
+        -g 30 
+        -rc cbr 
+        -b:v 2M 
+        -pix_fmt yuv420p 
+        -c:a aac
+        -b:a 128k
+        -zerolatency 1 
+        -f rtsp -rtsp_transport tcp rtsp://localhost:8553/webcam
+    runOnInitRestart: yes
   # example:
   # my_camera:
   #   source: rtsp://my_camera
