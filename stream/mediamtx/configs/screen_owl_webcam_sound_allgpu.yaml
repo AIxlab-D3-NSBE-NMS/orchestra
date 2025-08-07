@@ -76,7 +76,7 @@ authInternalUsers:
   # if the IP is localhost.
 - user: any
   pass:
-  ips: ['127.0.0.1', '::1', '192.168.10.2']
+  ips: ['127.0.0.1', '::1', '192.168.10.2', 192.168.10.1]
   permissions:
   - action: api
   - action: metrics
@@ -144,7 +144,7 @@ authJWTInHTTPQuery: true
 # Enable controlling the server through the Control API.
 api: yes # no
 # Address of the Control API listener.
-apiAddress: 127.0.0.1:9997
+apiAddress: :9997
 # Enable TLS/HTTPS on the Control API server.
 apiEncryption: no
 # Path to the server key. This is needed only when encryption is yes.
@@ -750,7 +750,7 @@ paths:
         -video_size 3840x2160
         -thread_queue_size 1024 
         -probesize 500M 
-        -i /dev/video4 
+        -i /dev/video0
         -f alsa 
         -thread_queue_size 1024 
         -i hw:1,0 
@@ -761,7 +761,8 @@ paths:
         -pix_fmt yuv420p 
         -c:a aac 
         -b:a 128k 
-        -f rtsp rtsp://localhost:8553/owlstream
+        -f rtsp rtsp://localhost:8553/owl
+    runOnInitRestart: yes
   webcam:
     runOnInit: /home/labadmin/aixlab/code/orchestra/stream/mediamtx/ffmpeg
         -fflags +genpts -use_wallclock_as_timestamps 1
@@ -769,7 +770,7 @@ paths:
         -framerate 30 
         -video_size 1280x720
         -thread_queue_size 1024
-        -i /dev/video0
+        -i /dev/video2
         -f alsa
         -thread_queue_size 1024
         -i plughw:0,6

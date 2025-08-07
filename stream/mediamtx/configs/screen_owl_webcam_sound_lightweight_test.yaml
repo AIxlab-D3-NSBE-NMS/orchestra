@@ -57,7 +57,7 @@ authInternalUsers:
   # Password. Not used in case of 'any' user.
   pass:
   # IPs or networks allowed to use this user. An empty list means any IP.
-  ips: []
+  ips: [127.0.0.1, 192.168.10.1]
   # List of permissions.
   permissions:
     # Available actions are: publish, read, playback, api, metrics, pprof.
@@ -76,7 +76,7 @@ authInternalUsers:
   # if the IP is localhost.
 - user: any
   pass:
-  ips: ['127.0.0.1', '::1', '192.168.10.2']
+  ips: ['127.0.0.1', '::1', '192.168.10.1']
   permissions:
   - action: api
   - action: metrics
@@ -102,10 +102,10 @@ authInternalUsers:
 authHTTPAddress:
 # Actions to exclude from HTTP-based authentication.
 # Format is the same as the one of user permissions.
-authHTTPExclude:
-- action: api
-- action: metrics
-- action: pprof
+#authHTTPExclude:
+#- action: api
+#- action: metrics
+#- action: pprof
 
 # JWT-based authentication.
 # Users have to login through an external identity server and obtain a JWT.
@@ -144,7 +144,7 @@ authJWTInHTTPQuery: true
 # Enable controlling the server through the Control API.
 api: yes # no
 # Address of the Control API listener.
-apiAddress: 127.0.0.1:9997
+apiAddress: :9997
 # Enable TLS/HTTPS on the Control API server.
 apiEncryption: no
 # Path to the server key. This is needed only when encryption is yes.
@@ -750,7 +750,7 @@ paths:
         -video_size 1280x720
         -thread_queue_size 1024 
         -probesize 50M 
-        -i /dev/video4 
+        -i /dev/video0
         -f alsa 
         -thread_queue_size 1024 
         -i hw:1,0 
@@ -769,7 +769,7 @@ paths:
         -framerate 30 
         -video_size 640x360
         -thread_queue_size 1024
-        -i /dev/video0
+        -i /dev/video2
         -f alsa
         -thread_queue_size 1024
         -i plughw:0,6
