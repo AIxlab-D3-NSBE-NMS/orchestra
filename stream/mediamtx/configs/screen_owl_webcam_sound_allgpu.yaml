@@ -165,7 +165,7 @@ apiTrustedProxies: []
 # Global settings -> Metrics
 
 # Enable Prometheus-compatible metrics.
-metrics: no
+metrics: yes
 # Address of the metrics HTTP listener.
 metricsAddress: :9998
 # Enable TLS/HTTPS on the Metrics server.
@@ -188,7 +188,7 @@ metricsTrustedProxies: []
 # Global settings -> PPROF
 
 # Enable pprof-compatible endpoint to monitor performances.
-pprof: no
+pprof: yes
 # Address of the pprof listener.
 pprofAddress: :9999
 # Enable TLS/HTTPS on the pprof server.
@@ -211,7 +211,7 @@ pprofTrustedProxies: []
 # Global settings -> Playback server
 
 # Enable downloading recordings from the playback server.
-playback: no
+playback: yes
 # Address of the playback server listener.
 playbackAddress: :9996
 # Enable TLS/HTTPS on the playback server.
@@ -483,7 +483,7 @@ pathDefaults:
   # Extension is added automatically.
   # Available variables are %path (path name), %Y %m %d (year, month, day),
   # %H %M %S (hours, minutes, seconds), %f (microseconds), %z (time zone), %s (unix epoch).
-  recordPath: ./recordings/%path/%Y-%m-%d_%H-%M-%S-%f
+  recordPath: /home/labadmin/Desktop/video_test/media/%path/%Y-%m-%d_%H-%M-%S-%f
   # Format of recorded segments.
   # Available formats are "fmp4" (fragmented MP4) and "mpegts" (MPEG-TS).
   recordFormat: fmp4
@@ -739,8 +739,8 @@ paths:
         -c:v h264_nvenc 
         -preset p1 
         -g 30 
-        -pix_fmt yuv420p 
-        -f rtsp -rtsp_transport tcp rtsp://localhost:8553/screen
+        -pix_fmt yuv420p
+        -f rtsp -rtsp_transport tcp rtsp://localhost:8553/screen 
     runOnInitRestart: yes
   owl:
     runOnInit: /home/labadmin/aixlab/code/orchestra/stream/mediamtx/ffmpeg 
@@ -750,7 +750,7 @@ paths:
         -video_size 3840x2160
         -thread_queue_size 1024 
         -probesize 500M 
-        -i /dev/video0
+        -i /dev/video4
         -f alsa 
         -thread_queue_size 1024 
         -i hw:1,0 
@@ -770,7 +770,7 @@ paths:
         -framerate 30 
         -video_size 1280x720
         -thread_queue_size 1024
-        -i /dev/video2
+        -i /dev/video0
         -f alsa
         -thread_queue_size 1024
         -i plughw:0,6
