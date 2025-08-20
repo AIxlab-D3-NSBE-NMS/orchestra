@@ -733,33 +733,34 @@ paths:
         -fflags +genpts -use_wallclock_as_timestamps 1
         -f x11grab 
         -video_size 3840x2400 
-        -thread_queue_size 1024
+        -thread_queue_size 4096
         -framerate 30 
         -i :0.0 
+        -bf 0
         -vf "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='%{localtime\:%H\\%M\\%S}.%{localtime\:%3N}':x=10:y=10:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.5,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='Frame\:%{n}':x=10:y=40:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.5"
         -c:v h264_nvenc 
-        -preset p1 
+        -preset p3 
         -g 30 
-        -pix_fmt yuv420p
         -f rtsp -rtsp_transport tcp rtsp://localhost:8553/screen 
     runOnInitRestart: yes
   owl:
     runOnInit: /home/labadmin/aixlab/code/orchestra/stream/mediamtx/ffmpeg 
         -fflags +genpts -use_wallclock_as_timestamps 1 
         -f v4l2 
+        -pix_fmt mjpeg
         -framerate 30 
         -video_size 3840x2160
         -thread_queue_size 1024 
         -probesize 500M 
         -i /dev/video0
         -f alsa 
-        -thread_queue_size 1024 
+        -thread_queue_size 4096 
         -i hw:1,0 
+        -bf 0
         -vf "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='%{localtime\:%H\\%M\\%S}.%{localtime\:%3N}':x=10:y=10:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.5,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='Frame\:%{n}':x=10:y=40:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.5"
         -c:v h264_nvenc 
         -bufsize 300M
-        -preset p1 
-        -pix_fmt yuv420p 
+        -preset p3 
         -c:a aac 
         -b:a 128k 
         -f rtsp rtsp://localhost:8553/owl
@@ -767,22 +768,24 @@ paths:
   webcam:
     runOnInit: /home/labadmin/aixlab/code/orchestra/stream/mediamtx/ffmpeg
         -fflags +genpts -use_wallclock_as_timestamps 1
+        -f v4l2
+        -pix_fmt mjpeg
         -framerate 30 
-        -video_size 1280x720
-        -thread_queue_size 1024
+        -video_size 1920x1080
+        -thread_queue_size 406
         -i /dev/video2
         -f alsa
         -thread_queue_size 1024
         -i plughw:0,6
         -map 0:v:0 -map 1:a:0
+        -bf 0
         -vf "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='%{localtime\:%H\\%M\\%S}.%{localtime\:%3N}':x=10:y=10:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.5,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='Frame\:%{n}':x=10:y=40:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.5"
         -c:v h264_nvenc 
-        -preset p1 
+        -preset p3 
         -tune ll
         -g 30 
         -rc cbr 
-        -b:v 2M 
-        -pix_fmt yuv420p 
+        -b:v 16M 
         -c:a aac
         -b:a 128k
         -f rtsp rtsp://localhost:8553/webcam
