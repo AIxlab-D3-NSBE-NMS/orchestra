@@ -45,7 +45,7 @@ def patch_record(name: str, enable: bool) -> tuple[int, str]:
         })
     try:
         r = requests.patch(
-            f"{API_BASE}/v3/config/paths/patch/{name}",
+            f"{API_BASE}/v3/config/pathdefaults/patch",
             json=payload,
             timeout=TIMEOUT,
         )
