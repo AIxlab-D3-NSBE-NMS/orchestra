@@ -5,7 +5,7 @@ import numpy as np
 input_device = "/dev/video0"
 
 # Output loopback device
-output_device = "/dev/video10"
+output_device = "/dev/video11"
 
 # Open input video capture
 cap = cv2.VideoCapture(input_device, cv2.CAP_V4L2)
