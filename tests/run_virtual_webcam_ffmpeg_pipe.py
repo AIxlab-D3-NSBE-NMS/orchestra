@@ -1,20 +1,22 @@
-import cv2, subprocess, numpy as np
+import cv2
+import subprocess
+import datetime
 
 W, H, FPS = 640, 480, 30
 
-# Choose a pixel format supported by /dev/video10 (YUYV or MJPEG)
-# YUYV example:
+logo = None
+
 cmd = [
     "ffmpeg",
     "-loglevel", "error",
-    "-re",                      # pace frames in real-time
+    "-re",
     "-f", "rawvideo",
-    "-pix_fmt", "bgr24",        # what we write from Python
+    "-pix_fmt", "bgr24",
     "-s", f"{W}x{H}",
     "-r", str(FPS),
-    "-i", "-",                  # stdin
+    "-i", "-",
     "-f", "v4l2",
-    "-pix_fmt", "yuyv422",      # or use "-codec mjpeg" for MJPEG
+    "-pix_fmt", "yuyv422",
     "/dev/video10"
 ]
 proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
@@ -26,10 +28,20 @@ cap.set(cv2.CAP_PROP_FPS, FPS)
 
 while True:
     ok, frame = cap.read()
-    if not ok: break
-    # Ensure size matches W x H
-    if frame.shape[1] != W or frame.shape[0] != H:
-        frame = cv2.resize(frame, (W, H))
+    if not ok:
+        break
+
+    # Add timestamp
+    now = datetime.datetime.now()
+    timestamp = f"{now:%Y-%m-%d %H:%M:%S}.{now.microsecond:06d}"[:23]
+    cv2.rectangle(frame, (0, 0), (220, 20), (0, 0, 0), cv2.FILLED)
+    cv2.putText(frame, timestamp, (0, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_8, False)
+
+    # Add logo (optional)
+    if logo is not None:
+        lh, lw = logo.shape[:2]
+        frame[10:10+lh, 10:10+lw] = logo[:, :, :3]
+
     proc.stdin.write(frame.tobytes())
 
 proc.stdin.close()
