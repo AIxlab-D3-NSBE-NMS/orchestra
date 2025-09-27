@@ -7,7 +7,7 @@ import json
 cols = st.columns(3, gap='small')
 
 
-samaritan = 'http://192.168.10.2'
+samaritan = 'http://192.168.10.1'
 selected_pc = samaritan
 mediamtx_api_port = '9997'
 API_BASE = selected_pc + ':' + mediamtx_api_port
