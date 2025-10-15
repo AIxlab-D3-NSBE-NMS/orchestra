@@ -2,11 +2,13 @@ import pandas as pd
 import streamlit as st 
 import requests
 import json
+import maestro_utils
 
 
 cols = st.columns(3, gap='small')
 
 # example for one single host computer
+ip_address = '192.168.10.3'
 samaritan = 'http://192.168.10.3'
 selected_pc = samaritan
 mediamtx_api_port = '9997'
@@ -61,6 +63,7 @@ def compute_status(rec_enabled: bool, ready: bool) -> tuple[str, str]:
     return "OFF", "crimson"
 
 # --- Fetch current state ---
+paths = maestro_utils.get_active_mediamtx_paths(ip_address)
 cfg = get_path_config(PATH) or {}
 runtime = get_path_runtime(PATH) or {}
 rec_enabled = bool(cfg.get("record", False))

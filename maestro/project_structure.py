@@ -21,7 +21,7 @@ class UIConfig:
     page_title: str = "MediaMTX Control Panel"
     page_icon: str = "🎥"
     layout: str = "wide"
-    default_ip_range: str = "192.168.1.0/24"
+    default_ip_range: str = "192.168.10.0/24"
     admin_mode_default: bool = False
     auto_refresh_default: bool = False
     show_details_default: bool = False
