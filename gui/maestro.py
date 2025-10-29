@@ -7,10 +7,11 @@ STREAMING_PORT = 8888
 API_PORT = 9997
 
 # fixed list of candidate IPs
-host_machines = ['192.168.10.1',
-                 '192.168.10.2',
+host_machines = ['192.168.10.2',
                  '192.168.10.3',
-                 '192.168.10.4', ]
+                 '192.168.10.4',
+                 '192.168.10.5',
+                 'fakehost_low_load']
 paths = ['owl', 'screen', 'webcam']
 
 vid_height = 198
