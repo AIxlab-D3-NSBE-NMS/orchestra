@@ -16,17 +16,18 @@ MODE = "test"
 DRIVER = "chrome"  # or 'firefox'
 if MODE == "test":
     PLATFORM_URL = "https://footprint.wwf.org.uk/"
-    QUALTRICS_URL = "https://www.youtube.com"
+    QUALTRICS_URL = "https://novasbe.az1.qualtrics.com/jfe/form/SV_2lwJ2iia3pBK4oC"
 elif MODE == "production":
     PLATFORM_URL = "https://app.carbon-market.pt/content/cyclesix/ufe/v5/canvas/ufe/modules.html/_login"
-    QUALTRICS_URL = "qualtrics.com"
+    QUALTRICS_URL = "https://novasbe.az1.qualtrics.com/jfe/form/SV_2lwJ2iia3pBK4oC"
 else:
     raise ValueError("Invalid mode")
 
 REPORT_KEYWORD = "submit"  # e.g. "report", "summary", or any unique URL fragment
 if MODE == "test":
     REPORT_KEYWORD = "Your footprint is equal to"
-CHECK_INTERVAL = 2  # seconds between checks
+CHECK_INTERVAL = 3  # seconds between checks
+GOODBYE_INTERVAL = 20
 # ---------------------
 qualtrics_window = None
 
@@ -41,17 +42,29 @@ def create_new_window(DRIVER):
         driver = webdriver.Firefox(service=service, options=options)
     return driver
 def is_submitted(driver):
-    # current_url = driver.current_url
-    # return REPORT_KEYWORD in current_url.lower()
     return "Your footprint is equal to" in driver.page_source
 def check_if_submitted_and_open_qualtrics(driver, qualtrics_window):
     if is_submitted(driver) and qualtrics_window is None:
         print("Report detected. Opening Qualtrics survey...")
         qualtrics_window = create_new_window(DRIVER)
         qualtrics_window.get(QUALTRICS_URL)
-    threading.Timer(
-        CHECK_INTERVAL, check_if_submitted_and_open_qualtrics, args=[driver, qualtrics_window]
-    ).start()
+    else:
+        if qualtrics_window is None:
+            print('carbon footprint not filled in yet')
+    qualtrics_window = threading.Timer(
+         CHECK_INTERVAL,
+         check_if_submitted_and_open_qualtrics,
+         args=[driver, qualtrics_window]).start()
+
+    return qualtrics_window
+def is_qualtrics_finished(qualtrics_window):
+    if qualtrics_window is not None:
+        if 'We thank you for your time spent taking this survey'\
+            in qualtrics_window.page_source:
+            print("Qualtrics survey completed.")
+            qualtrics_window.quit()
+            driver.quit()
+    threading.Timer(GOODBYE_INTERVAL, is_qualtrics_finished, args=[qualtrics_window]).start()
 
 
 # Launch Browser
@@ -75,7 +88,9 @@ cyclesix_window_handle = driver.current_window_handle
 assert len(driver.window_handles) == 1
 
 # ---------------------
-check_if_submitted_and_open_qualtrics(driver, qualtrics_window)
+qualtrics_window = check_if_submitted_and_open_qualtrics(driver, qualtrics_window)
+
+is_qualtrics_finished(qualtrics_window) # closes window
 
 breakpoint()
 a = 1
