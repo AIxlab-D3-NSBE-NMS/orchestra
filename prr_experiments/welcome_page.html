@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Two Column Layout</title>
+  <style>
+    :root{ --accent:#2563eb; --bg:#f8fafc; --card:#ffffff; --radius:12px }
+    *{box-sizing:border-box}
+    body{font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin:0; background:var(--bg); color:#0f172a}
+    header{background:linear-gradient(90deg, rgba(37,99,235,0.08), rgba(37,99,235,0.02)); padding:24px 20px; box-shadow:0 1px 0 rgba(15,23,42,0.04)}
+    .container{max-width:980px; margin:28px auto; padding:0 20px}
+    .site-title{font-size:20px; font-weight:700; color:var(--accent)}
+
+    main{display:flex; gap:20px; align-items:flex-start}
+    .column{background:var(--card); border-radius:var(--radius); padding:18px; box-shadow:0 6px 18px rgba(2,6,23,0.06); flex:1; min-width:0}
+    h2{margin:0 0 10px 0; font-size:16px}
+    p{margin:0; line-height:1.5}
+
+    .actions{display:flex; justify-content:center; margin-top:20px}
+    .btn{background:var(--accent); color:white; border:none; padding:10px 18px; border-radius:10px; font-weight:600; cursor:pointer}
+    .btn:active{transform:translateY(1px)}
+
+    /* Responsive: stack columns on narrow screens */
+    @media (max-width:720px){ main{flex-direction:column} }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="site-title">Top Header</div>
+    </div>
+  </header>
+
+  <div class="container">
+    <main>
+      <section class="column">
+        <h2>Column One</h2>
+        <p>Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut</p>
+      </section>
+
+      <section class="column">
+        <h2>Column Two</h2>
+        <p>Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat duis aute irure</p>
+      </section>
+    </main>
+
+    <div class="actions">
+      <button class="btn" id="startBtn">Start</button>
+    </div>
+  </div>
+</body>
+</html>

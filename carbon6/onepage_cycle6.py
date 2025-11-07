@@ -7,6 +7,7 @@ from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoAlertPresentException
 import time, threading
 
 # ---------------------
@@ -15,7 +16,7 @@ import time, threading
 MODE = "test"
 DRIVER = "chrome"  # or 'firefox'
 if MODE == "test":
-    PLATFORM_URL = "https://footprint.wwf.org.uk/"
+    PLATFORM_URL = "https://forms.cloud.microsoft/e/dHmkTn0XAv"
     QUALTRICS_URL = "https://novasbe.az1.qualtrics.com/jfe/form/SV_2lwJ2iia3pBK4oC"
 elif MODE == "production":
     PLATFORM_URL = "https://app.carbon-market.pt/content/cyclesix/ufe/v5/canvas/ufe/modules.html/_login"
@@ -46,9 +47,17 @@ def is_submitted(driver):
 def check_if_submitted_and_open_qualtrics(driver, qualtrics_window):
     if is_submitted(driver) and qualtrics_window is None:
         print("Report detected. Opening Qualtrics survey...")
+        driver.execute_script("alert('Please analyse the content of this page carefully. \
+            We will ask you some questions about these results. Click next when you are ready to proceed.');")
+        while True:
+            try:
+                alert = driver.switch_to.alert
+                time.sleep(0.5)
+            except NoAlertPresentException:
+                break
         qualtrics_window = create_new_window(DRIVER)
         qualtrics_window.get(QUALTRICS_URL)
-    else:
+
         if qualtrics_window is None:
             print('carbon footprint not filled in yet')
     qualtrics_window = threading.Timer(
@@ -79,9 +88,10 @@ elif DRIVER == "firefox":
 driver = create_new_window(DRIVER)
 
 driver.get(PLATFORM_URL)
-WebDriverWait(driver, 10).until(
-    EC.element_to_be_clickable((By.ID, "onetrust-accept-btn-handler"))
-).click()
+# COOKIE CONTROL
+# WebDriverWait(driver, 10).until(
+#     EC.element_to_be_clickable((By.ID, "onetrust-accept-btn-handler"))
+# ).click()
 
 # get the window handle
 cyclesix_window_handle = driver.current_window_handle
