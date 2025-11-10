@@ -30,68 +30,63 @@ class Task:
             self.window = None
 
 class ChromiumHandler():
+    DEFAULT_CHECK_INTERVAL = 0.5 # every 0.5 seconds checks for callback / clicks
     def __init__(self):
-        self.webdriver  = None
-        self.service    = None
-        self.options    = None
-        self.monitoring = False
+        self.browser        = None
+        self.service        = None
+        self.options        = None
+        self.monitoring     = False
         self.monitor_thread = None
-        self.callbacks = {}  # event_name: callback_function
-        
+        self.callbacks      = {}  # event_name: callback_function
     def create_new_window(self):
         self.service    = ChromeService("/usr/bin/chromedriver")
         self.options    = ChromeOptions()
         # important: the following line suppresses the google chromium banner
         # saying that the browser is being controlled externally
         self.options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        self.webdriver = webdriver.Chrome(service=self.service, options=self.options)
-        
+        self.browser = webdriver.Chrome(service=self.service, options=self.options)
+        # self.browser is the important 'output'
     def open_url(self, url):
-        self.webdriver.get(url)
-        
+        self.browser.get(url)
     def register_callback(self, event_name, callback_function):
         """Register a callback for a specific event (e.g., 'page_contains', 'url_changed')"""
         self.callbacks[event_name] = callback_function
-        
-    def start_monitoring(self, check_interval=3):
+    def start_monitoring(self, check_interval=DEFAULT_CHECK_INTERVAL):
         """Start background monitoring thread"""
         if self.monitoring:
             return
-            
         self.monitoring = True
-        
+
         def monitor_loop():
-            while self.monitoring and self.webdriver:
+            while self.monitoring and self.browser:
                 try:
                     # Check for registered callbacks
                     for event_name, callback in self.callbacks.items():
-                        callback(self.webdriver)
+                        callback(self.browser)
                     time.sleep(check_interval)
                 except Exception as e:
                     print(f"Monitoring error: {e}")
                     break
-                    
+
         self.monitor_thread = threading.Thread(target=monitor_loop, daemon=True)
         self.monitor_thread.start()
-        
     def stop_monitoring(self):
         """Stop background monitoring"""
         self.monitoring = False
         if self.monitor_thread and self.monitor_thread.is_alive():
             self.monitor_thread.join(timeout=1)
-            
     def check_page_content(self, keyword):
         """Helper method to check if page contains specific content"""
-        if self.webdriver:
-            return keyword in self.webdriver.page_source
+        if self.browser:
+            return keyword in self.browser.page_source
         return False
-        
     def quit(self):
         """Clean shutdown of browser and monitoring"""
         self.stop_monitoring()
-        if self.webdriver:
-            self.webdriver.quit()
-            self.webdriver = None
+        if self.browser:
+            self.browser.quit()
+            self.browser = None
+
 
 
 class WelcomePageTask(Task):
@@ -99,30 +94,75 @@ class WelcomePageTask(Task):
     def __init__(self, url):
         super().__init__()
         self.url = url
-        self.browser = ChromiumHandler()
-
+        self.browser_handler = ChromiumHandler()
     def start(self):
         super().start()# update status to 'RUNNING'
-        self.browser.create_new_window()
-        self.browser.open_url(self.url)
-        
-        # Example: Register a callback to monitor for specific content
-        def on_page_loaded(driver):
-            if "Google" in driver.title:
-                print("Google page detected")
-                
-        self.browser.register_callback("page_check", on_page_loaded)
-        self.browser.start_monitoring(check_interval=5)
-        
-    def is_complete(self):
-        return self.status == "completed"
-        
+        self.browser_handler.create_new_window()
+        self.browser_handler.open_url(self.url)
+    def wait_for_start_click(self, timeout=10):
+        """Wait for Start button to become disabled (indicating it was clicked)"""
+        if self.status == "RUNNING":
+            try:
+                print("Waiting for user to click Start button...")
+
+                # Wait for button to become non-clickable (disabled)
+                WebDriverWait(self.browser_handler.browser, timeout).until(
+                                lambda driver: driver.find_element(By.TAG_NAME, "body")
+                                              .get_attribute("data-start-clicked") == "true"
+                            )
+                print("Start button clicked!")
+                # self.start_clicked = True
+                self.status = "COMPLETED"
+                return True
+            finally:
+                self.wait_for_start_click()
+        if self.status == "COMPLETED":
+            self.cleanup()
+
     def cleanup(self):
         # Don't close the window - let user refer back to instructions
         print("WelcomePageTask staying open for reference")
-        self.browser.stop_monitoring()
+        self.browser_handler.stop_monitoring()
         # Note: not calling browser.quit() to keep window open
 
+class WebPage(Task):
+    """Shows a welcome page. Stays open so user can refer back to it."""
+    def __init__(self, url):
+        super().__init__()
+        self.url = url
+        self.browser_handler = ChromiumHandler()
+    def start(self, browser_handler = None):
+        super().start()# update status to 'RUNNING'
+        if browser_handler is None
+            self.browser_handler.create_new_window()
+        else:
+            self.browser_handler = browser_handler
+        self.browser_handler.open_url(self.url)
+    def wait_for_start_click(self, timeout=10):
+        """Wait for Start button to become disabled (indicating it was clicked)"""
+        if self.status == "RUNNING":
+            try:
+                print("Waiting for user to click Start button...")
+
+                # Wait for button to become non-clickable (disabled)
+                WebDriverWait(self.browser_handler.browser, timeout).until(
+                                lambda driver: driver.find_element(By.TAG_NAME, "body")
+                                              .get_attribute("data-start-clicked") == "true"
+                            )
+                print("Start button clicked!")
+                # self.start_clicked = True
+                self.status = "COMPLETED"
+                return True
+            finally:
+                self.wait_for_start_click()
+        if self.status == "COMPLETED":
+            self.cleanup()
+
+    def cleanup(self):
+        # Don't close the window - let user refer back to instructions
+        print("WelcomePageTask staying open for reference")
+        self.browser_handler.stop_monitoring()
+        # Note: not calling browser.quit() to keep window open
 
 
 
