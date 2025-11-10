@@ -1,3 +1,4 @@
+from _typeshed import StrOrBytesPath
 import pdb
 from math import exp
 import sys
@@ -48,44 +49,11 @@ if (current_page.wait_for_start_click()):
     current_page.browser_handler.browser.get(URL_DICT['informed_consent_taikai'])
     time.sleep(2)
 
-# Add this debugging code to check if we can find the element
-def debug_submit_button(driver):
-    """Debug function to test different locators for the submit button"""
-    locators_to_try = [
-        ("aria-label", (By.XPATH, "//button[@aria-label='Submit']")),
-        ("text content", (By.XPATH, "//button[contains(text(), 'Submit')]")),
-        ("span text", (By.XPATH, "//button[.//span[contains(text(), 'Submit')]]")),
-        ("type submit", (By.XPATH, "//button[@type='submit']")),
-        ("css aria-label", (By.CSS_SELECTOR, "button[aria-label='Submit']")),
-        ("css type", (By.CSS_SELECTOR, "button[type='submit']")),
-        ("mat-flat-button", (By.CSS_SELECTOR, "button[mat-flat-button]")),
-        ("class contains", (By.CSS_SELECTOR, "button.mat-mdc-unelevated-button")),
-    ]
-
-    print("=== Debugging Submit Button Locators ===")
-    for name, locator in locators_to_try:
-        try:
-            elements = driver.find_elements(*locator)
-            print(f"✓ {name}: Found {len(elements)} element(s)")
-            if elements:
-                element = elements[0]
-                print(f"  - Text: '{element.text}'")
-                print(f"  - aria-label: '{element.get_attribute('aria-label')}'")
-                print(f"  - type: '{element.get_attribute('type')}'")
-                print(f"  - enabled: {element.is_enabled()}")
-        except Exception as e:
-            print(f"✗ {name}: Error - {e}")
-
-    return True
-
-# Add this to your garden.py temporarily:
-# debug_submit_button(current_page.browser_handler.browser)
-
+state = State.GARDEN_CONSENT
 # Use the improved click detection
 if current_page.browser_handler.wait_for_actual_click(
-    (By.XPATH, "//button[@aria-label='Submit']"),
-    timeout=3000  # 50 minutes
-):
+    (By.XPATH, "//button[@aria-label='Submit']"), timeout=3000):
     print('Consent submitted! Start recording screen')
-
-breakpoint()
+    # TODO: TOGGLE SCREEN RECORDING
+    time.sleep(5)
+    current_page.browser_handler.browser.get(URL_DICT['informed_consent_taikai'])
