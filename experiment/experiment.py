@@ -1,7 +1,8 @@
-from asyncio.unix_events import SelectorEventLoop
+
 from selenium import webdriver  # to control the browser
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.chromium.webdriver import ChromiumDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -32,7 +33,7 @@ class Task:
 class ChromiumHandler():
     DEFAULT_CHECK_INTERVAL = 0.5 # every 0.5 seconds checks for callback / clicks
     def __init__(self):
-        self.browser        = None
+        self.browser        = None # driver
         self.service        = None
         self.options        = None
         self.monitoring     = False
@@ -80,6 +81,81 @@ class ChromiumHandler():
         if self.browser:
             return keyword in self.browser.page_source
         return False
+    def wait_for_element_click(self, locator, timeout=10, click_detection_method="data-attribute", data_attribute="data-clicked"):
+        """
+        General function to wait for any element to be clicked
+
+        Args:
+            locator: Tuple of (By.TYPE, "selector") e.g., (By.ID, "startBtn")
+            timeout: Maximum time to wait in seconds
+            click_detection_method: How to detect the click ("data-attribute", "disabled", "navigation", "custom")
+            data_attribute: Name of data attribute to check (for "data-attribute" method)
+
+        Returns:
+            bool: True if click detected, False if timeout/error
+        """
+        try:
+            print(f"Waiting for user to click element: {locator}")
+
+            if click_detection_method == "data-attribute":
+                # Wait for data attribute to be set
+                WebDriverWait(self.browser, timeout).until(
+                    lambda driver: driver.find_element(*locator)
+                                    .get_attribute(data_attribute) == "true"
+                )
+
+            elif click_detection_method == "disabled":
+                # Wait for element to become disabled
+                WebDriverWait(self.browser, timeout).until_not(
+                    EC.element_to_be_clickable(locator)
+                )
+
+            elif click_detection_method == "navigation":
+                # Wait for URL change
+                current_url = self.browser.current_url
+                WebDriverWait(self.browser, timeout).until(
+                    lambda driver: driver.current_url != current_url
+                )
+
+            print("Element click detected!")
+            return True
+
+        except Exception as e:
+            print(f"Timeout or error waiting for element click: {e}")
+            return False
+    def wait_for_actual_click(self, locator, timeout=3000):
+        """Wait for actual click event using JavaScript listener"""
+        try:
+            print(f"Waiting for element to be ready: {locator}")
+
+            # Wait for element to be present (but maybe not enabled yet)
+            element = WebDriverWait(self.browser, 30).until(
+                EC.presence_of_element_located(locator)
+            )
+
+            # Add JavaScript click listener
+            self.browser.execute_script("""
+                const element = arguments[0];
+                window.submitClicked = false;
+                element.addEventListener('click', function(e) {
+                    console.log('Submit button clicked!');
+                    window.submitClicked = true;
+                });
+            """, element)
+
+            print("Click listener added. Waiting for user to click submit...")
+
+            # Wait for the click to be detected
+            WebDriverWait(self.browser, timeout).until(
+                lambda driver: driver.execute_script("return window.submitClicked === true;")
+            )
+
+            print("Submit button click detected!")
+            return True
+
+        except Exception as e:
+            print(f"Error: {e}")
+            return False
     def quit(self):
         """Clean shutdown of browser and monitoring"""
         self.stop_monitoring()
@@ -127,16 +203,12 @@ class WelcomePageTask(Task):
 
 class WebPage(Task):
     """Shows a welcome page. Stays open so user can refer back to it."""
-    def __init__(self, url):
+    def __init__(self, url, browser_handler = None):
         super().__init__()
         self.url = url
-        self.browser_handler = ChromiumHandler()
-    def start(self, browser_handler = None):
+        self.browser_handler = browser_handler or self.browser_handler.create_new_window()
+    def start(self):
         super().start()# update status to 'RUNNING'
-        if browser_handler is None
-            self.browser_handler.create_new_window()
-        else:
-            self.browser_handler = browser_handler
         self.browser_handler.open_url(self.url)
     def wait_for_start_click(self, timeout=10):
         """Wait for Start button to become disabled (indicating it was clicked)"""
@@ -157,6 +229,20 @@ class WebPage(Task):
                 self.wait_for_start_click()
         if self.status == "COMPLETED":
             self.cleanup()
+
+    def wait_for_element_click(self, locator, timeout=10, detection_method="data-attribute", **kwargs):
+            """Wait for any element to be clicked using the general function"""
+            if self.status != "RUNNING":
+                return False
+
+            success = self.browser_handler.wait_for_element_click(
+                locator, timeout, detection_method, **kwargs
+            )
+
+            if success:
+                self.status = "COMPLETED"
+                return True
+            return False
 
     def cleanup(self):
         # Don't close the window - let user refer back to instructions
