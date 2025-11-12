@@ -244,6 +244,28 @@ class WebPage(Task):
                 return True
             return False
 
+    def monitor_for_target_text(self, target_text, check_interval=2, timeout=99999):
+        """
+        Periodically check if the page contains the target URL
+        Returns the timestamp when found, or None if timeout reached
+        """
+        start_monitoring = time.time()
+        print(f"Starting to monitor for: {target_text}")
+
+        while time.time() - start_monitoring < timeout:
+            try:
+                if self.browser_handler.check_page_content(target_text):
+                    print(f"Found target URL: {target_text}")
+                    return time.time()
+                time.sleep(check_interval)
+            except Exception as e:
+                print(f"Error during monitoring: {e}")
+                time.sleep(check_interval)
+
+        print(f"Timeout reached ({timeout}s) - target text not found")
+        return None
+
+
     def cleanup(self):
         # Don't close the window - let user refer back to instructions
         print("WelcomePageTask staying open for reference")
