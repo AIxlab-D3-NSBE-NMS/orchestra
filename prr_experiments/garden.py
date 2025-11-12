@@ -10,6 +10,7 @@ sys.path.insert(0, str(experiment_path))
 import experiment
 from selenium.webdriver.common.by import By
 import time
+import requests
 
 
 class State(IntEnum):
@@ -94,7 +95,13 @@ if current_page.browser_handler.wait_for_actual_click(
     (By.ID, "NextButton"), timeout=9999):
     print('Submitted business plan')
     # TODO: TOGGLE SCREEN RECORDING
-    time.sleep(1)
-    current_page.browser_handler.browser.get('https://www.google.com')
+    time.sleep(20)
+    current_page.browser_handler.browser.close()
+    
+    # send request to mediamtx api to stop recording the screen and kill the mediamtx pid
+
+
+
+
 
 breakpoint()
