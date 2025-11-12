@@ -3,7 +3,6 @@ from math import exp
 from pickletools import StackObject
 import sys
 from pathlib import Path
-from tracemalloc import start
 import yaml
 from enum import IntEnum, auto
 experiment_path = Path(__file__).parent.parent / "experiment"
@@ -39,7 +38,7 @@ CFG_DICT = yaml.safe_load(open(EXP_CFG.__str__(), 'r'))
 welcome_url = EXP_CFG.parent / CFG_DICT['welcome_page']
 if CFG_DICT['informed_consent_taikai'].split('.')[-1]=='html':
     CFG_DICT['informed_consent_taikai'] = (EXP_CFG.parent / CFG_DICT['informed_consent_taikai']).as_uri()
-breakpoint()
+
 browser_handler = experiment.ChromiumHandler()
 browser_handler.create_new_window()
 
@@ -58,7 +57,7 @@ if current_page.browser_handler.wait_for_actual_click(
     (By.XPATH, "//button[@aria-label='Submit']"), timeout=9999):
     print('Consent submitted! Start recording screen')
     # TODO: TOGGLE SCREEN RECORDING
-    time.sleep(5)
+    time.sleep(1)
     current_page.browser_handler.browser.get(CFG_DICT['taikai_qualtrics'])
 
 state = State.GARDEN_QUALTRICS_PHASE1
@@ -74,14 +73,28 @@ start_time_garden = time.time()
 while time.time() - start_time_garden < CFG_DICT['garden_allowed_duration']:
     if time.time() - start_time_garden > (CFG_DICT['garden_allowed_duration']-CFG_DICT['garden_first_notification']) \
         and not notified_1st:
+            print('showing first timw notification')
             notified_1st = True
-            current_page.browser_handler.browser.execute_script(
-                            f"alert('{CFG_DICT['garden_first_notification']//60} minutes until submission.');")
-    if time.time() - start_time_garden > (CFG_DICT['garden_allowed_duration']-CFG_DICT['garden_second_notification']) \
+            remaining_minutes = CFG_DICT['garden_first_notification'] // 60
+            current_page.force_tab_active()
+            current_page.show_non_blocking_popup(f"{remaining_minutes} minutes remaining", duration_seconds=10)
+
+    if time.time() - start_time_garden > (CFG_DICT["garden_allowed_duration"]-CFG_DICT["garden_second_notification"]) \
         and not notified_2nd:
             notified_2nd = True
-            current_page.browser_handler.browser.execute_script(
-                            f"alert('{CFG_DICT['garden_first_notification']//60} minutes until submission.');")
-print('times up')
+            current_page.force_tab_active()
+            remaining_minutes = CFG_DICT['garden_first_notification'] // 60
+            current_page.show_non_blocking_popup(f"{remaining_minutes} minutes remaining", duration_seconds=10)
+
+current_page.force_tab_active()
+print('Please submit')
+current_page.show_non_blocking_popup(f"Please submit your business plan!", duration_seconds=10)
+
+if current_page.browser_handler.wait_for_actual_click(
+    (By.ID, "NextButton"), timeout=9999):
+    print('Submitted business plan')
+    # TODO: TOGGLE SCREEN RECORDING
+    time.sleep(1)
+    current_page.browser_handler.browser.get('https://www.google.com')
 
 breakpoint()

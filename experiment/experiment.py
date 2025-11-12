@@ -45,6 +45,9 @@ class ChromiumHandler():
         # important: the following line suppresses the google chromium banner
         # saying that the browser is being controlled externally
         self.options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        self.options.add_experimental_option("prefs", {
+                    "profile.default_content_setting_values.notifications": 1,  # 1=allow, 2=block, 0=ask
+                    "profile.managed_default_content_settings.notifications": 1})
         self.browser = webdriver.Chrome(service=self.service, options=self.options)
         # self.browser is the important 'output'
     def open_url(self, url):
@@ -230,6 +233,140 @@ class WebPage(Task):
         if self.status == "COMPLETED":
             self.cleanup()
 
+    def force_tab_active(self):
+        """
+        Force the browser window and current tab to be active/focused
+        This ensures notifications will be visible to the user
+        """
+        try:
+            # Bring browser window to front and focus
+            self.browser_handler.browser.switch_to.window(self.browser_handler.browser.current_window_handle)
+
+            # Execute JavaScript to focus the window and tab
+            focus_script = """
+            window.focus();
+            if (window.top) {
+                window.top.focus();
+            }
+            if (document.hasFocus && !document.hasFocus()) {
+                window.focus();
+            }
+            window.scrollTo(0, 0);
+            console.log('Window focused and brought to front');
+            return true;
+            """
+
+            self.browser_handler.browser.execute_script(focus_script)
+            print("Tab forced to active")
+            return True
+
+        except Exception as e:
+            print(f"Error forcing tab active: {e}")
+            return False
+
+    def setup_browser_notifications(self):
+        """
+        Check notification support and permission status.
+        Permission should already be granted via Chrome options.
+        """
+        script = """
+        if ('Notification' in window) {
+            console.log('Notification permission:', Notification.permission);
+            return {
+                supported: true,
+                permission: Notification.permission
+            };
+        } else {
+            return {
+                supported: false,
+                permission: 'not-supported'
+            };
+        }
+        """
+        try:
+            result = self.browser_handler.browser.execute_script(script)
+            print(f"Notification status: {result}")
+            return result
+        except Exception as e:
+            print(f"Error checking notification status: {e}")
+            return {'supported': False, 'permission': 'error'}
+
+    def show_browser_notification(self, title, message, duration_ms=10000, icon=None):
+        """
+        Show a system-level browser notification that appears even when user is in another tab
+        Permission should already be granted via Chrome options.
+
+        Args:
+            title (str): Notification title
+            message (str): Notification body text
+            duration_ms (int): How long to show notification in milliseconds
+            icon (str): Optional icon URL or data URI
+
+        Returns:
+            bool: True if notification was sent, False if failed
+        """
+        # Escape strings to prevent JavaScript injection/errors
+        title_escaped = title.replace("'", "\\'").replace('"', '\\"').replace('\n', '\\n')
+        message_escaped = message.replace("'", "\\'").replace('"', '\\"').replace('\n', '\\n')
+
+        if not icon:
+            # Use a simple warning emoji or Unicode character as icon
+            # This avoids SVG parsing issues entirely
+            icon_option = ""
+        else:
+            icon_option = f", icon: '{icon}'"
+
+        script = f"""
+        (function() {{
+            if ('Notification' in window) {{
+                try {{
+                    console.log('Current permission:', Notification.permission);
+
+                    var notification = new Notification('{title_escaped}', {{
+                        body: '{message_escaped}',
+                        requireInteraction: false,
+                        silent: false,
+                        tag: 'experiment-notification'{icon_option}
+                    }});
+
+                    // Auto-close after duration
+                    setTimeout(function() {{
+                        notification.close();
+                    }}, {duration_ms});
+
+                    // Focus window when notification is clicked
+                    notification.onclick = function() {{
+                        window.focus();
+                        this.close();
+                    }};
+
+                    console.log('Notification created successfully');
+                    return true;
+
+                }} catch (e) {{
+                    console.error('Notification error:', e);
+                    console.log('Error details:', e.message);
+                    console.log('Permission status:', Notification.permission);
+                    return false;
+                }}
+            }} else {{
+                console.log('Notifications not supported');
+                return false;
+            }}
+        }})();
+        """
+
+        try:
+            result = self.browser_handler.browser.execute_script(script)
+            if result:
+                print(f"Browser notification sent: {title}")
+            else:
+                print(f"Browser notification failed: {title}")
+            return bool(result)
+        except Exception as e:
+            print(f"Error showing browser notification: {e}")
+            return False
+
     def wait_for_element_click(self, locator, timeout=10, detection_method="data-attribute", **kwargs):
             """Wait for any element to be clicked using the general function"""
             if self.status != "RUNNING":
@@ -265,6 +402,34 @@ class WebPage(Task):
         print(f"Timeout reached ({timeout}s) - target text not found")
         return None
 
+    def show_non_blocking_popup(self, message, duration_seconds=5):
+        """Show a custom popup that doesn't block Selenium"""
+        popup_script = f"""
+        var popup = document.createElement('div');
+        popup.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #404040;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            z-index: 10000;
+            font-family: Arial, sans-serif;
+            font-size: 96px;
+            font-weight: bold;
+        `;
+        popup.textContent = '{message}';
+        document.body.appendChild(popup);
+
+        setTimeout(function() {{
+            if (popup && popup.parentNode) {{
+                popup.parentNode.removeChild(popup);
+            }}
+        }}, {duration_seconds * 1000});
+        """
+        self.browser_handler.browser.execute_script(popup_script)
 
     def cleanup(self):
         # Don't close the window - let user refer back to instructions
