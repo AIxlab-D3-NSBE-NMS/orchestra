@@ -1,6 +1,4 @@
 import pdb
-from math import exp
-from pickletools import StackObject
 import sys
 from pathlib import Path
 import yaml
@@ -10,7 +8,8 @@ sys.path.insert(0, str(experiment_path))
 import experiment
 from selenium.webdriver.common.by import By
 import time
-import requests
+import datetime
+import threading
 
 
 class State(IntEnum):
@@ -43,6 +42,14 @@ if CFG_DICT['informed_consent_taikai'].split('.')[-1]=='html':
 browser_handler = experiment.ChromiumHandler()
 browser_handler.create_new_window()
 
+# recording init class, but don't record yet
+rec = experiment.ScreenRecorder()
+recordings_dir = Path('/home/labadmin/data/garden')
+recordings_dir.mkdir(parents=True, exist_ok=True)
+def _new_recording_path(prefix="garden"):
+    ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    return recordings_dir / f"{prefix}_{ts}.mkv"
+
 state = State.WELCOME
 current_page = experiment.WebPage(  welcome_url.as_uri(),
                                     browser_handler=browser_handler)
@@ -64,7 +71,20 @@ if current_page.browser_handler.wait_for_actual_click(
 state = State.GARDEN_QUALTRICS_PHASE1
 
 if current_page.monitor_for_target_text('https://garden.taikai.network/feed'):
-    print('Start COUNTDOWN')
+    print('Start COUNTDOWN, starting screen recording')
+    out_file = _new_recording_path(prefix="garden")
+    # rec.start_recording(
+    #     output_path=str(out_file),
+    #     display=":0.0",
+    #     video_size="3840x2400",
+    #     framerate=60,
+    #     encoder="h264_nvenc",
+    #     bitrate="12M",
+    # )
+    print(f"Screen recording started -> {out_file}")
+    time.sleep(1)
+
+
 
 state = State.GARDEN_USEMENTOR
 # start haf an hour countdown, warn at 15 left and 5 left
@@ -95,11 +115,17 @@ if current_page.browser_handler.wait_for_actual_click(
     (By.ID, "NextButton"), timeout=9999):
     print('Submitted business plan')
     # TODO: TOGGLE SCREEN RECORDING
+
+    # send request to mediamtx api to stop recording the screen and kill the mediamtx pid
+    # ok = rec.stop_recording(timeout=9999)
+    # if ok:
+    #     print("Recording stopped and finalized.")
+    # else:
+    #     print("Graceful stop timed out; forcing termination.")
+    #     rec.force_stop()
+
     time.sleep(20)
     current_page.browser_handler.browser.close()
-    
-    # send request to mediamtx api to stop recording the screen and kill the mediamtx pid
-
 
 
 

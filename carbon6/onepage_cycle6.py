@@ -13,7 +13,7 @@ import time, threading
 # ---------------------
 # CONFIGURE
 # ---------------------
-MODE = "test"
+MODE = "production"
 DRIVER = "chrome"  # or 'firefox'
 if MODE == "test":
     PLATFORM_URL = "https://forms.cloud.microsoft/e/dHmkTn0XAv"
