@@ -20,7 +20,7 @@ from experiment import MediaMTX
 
 HOME = Path.home()
 USER = os.environ.get("USER") or os.environ.get("LOGNAME") or os.getlogin()
-
+env = {"HOME": HOME}
 
 class State(IntEnum):
     WELCOME = 0
@@ -37,7 +37,8 @@ class State(IntEnum):
 
 recordings_dir = HOME / "data" / "garden"
 recordings_dir.mkdir(parents=True, exist_ok=True)
-mediamtx_proc = MediaMTX.start_mediamtx(str(Path.cwd() / 'prr_experiments' / "record_garden.yaml"))
+mediamtx_proc = MediaMTX.start_mediamtx(str(Path.cwd() / 'prr_experiments' / "record_garden.yaml"),
+                                        env=env)
 
 EXP_CFG  = Path.cwd() / 'prr_experiments' / 'private' / "PRR_CONFIG.yaml"
 CFG_DICT = yaml.safe_load(open(EXP_CFG.__str__(), 'r'))

@@ -14,9 +14,10 @@ import requests
 
 class MediaMTX:
     @staticmethod
-    def start_mediamtx(config_path):
+    def start_mediamtx(config_path, env=None):
         proc = subprocess.Popen(
             ["mediamtx", config_path],
+            env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
@@ -39,11 +40,11 @@ class MediaMTX:
             return False
 
     @staticmethod
-    def start_recording(path_name="screen", ip_address="localhost", port=9997, timeout=2):
+    def start_recording(path_name="screen", ip_address="127.0.0.1", port=9997, timeout=2):
         return MediaMTX.set_path_record_status(ip_address, path_name, True, port, timeout)
 
     @staticmethod
-    def stop_recording(path_name="screen", ip_address="localhost", port=9997, timeout=2):
+    def stop_recording(path_name="screen", ip_address="127.0.0.1", port=9997, timeout=2):
         return MediaMTX.set_path_record_status(ip_address, path_name, False, port, timeout)
 
 
