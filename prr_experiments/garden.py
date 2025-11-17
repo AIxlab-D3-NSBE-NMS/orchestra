@@ -34,6 +34,15 @@ recordings_dir = HOME / "data" / "garden"
 recordings_dir.mkdir(parents=True, exist_ok=True)
 mediamtx_proc = MediaMTX.start_mediamtx(str(Path.cwd() / 'prr_experiments' / "record_garden.yaml"))
 
+EXP_CFG  = Path.cwd() / 'prr_experiments' / 'private' / "PRR_CONFIG.yaml"
+CFG_DICT = yaml.safe_load(open(EXP_CFG.__str__(), 'r'))
+welcome_url = EXP_CFG.parent / CFG_DICT['welcome_page']
+if CFG_DICT['informed_consent_taikai'].split('.')[-1]=='html':
+    CFG_DICT['informed_consent_taikai'] = (EXP_CFG.parent / CFG_DICT['informed_consent_taikai']).as_uri()
+
+browser_handler = experiment.ChromiumHandler()
+browser_handler.create_new_window()
+
 try:
     # --- Your experiment logic here ---
     state = State.WELCOME
