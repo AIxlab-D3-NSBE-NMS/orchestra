@@ -4,14 +4,18 @@ import sys
 from pathlib import Path
 import yaml
 from enum import IntEnum, auto
-experiment_path = Path(__file__).parent.parent / "experiment"
-sys.path.insert(0, str(experiment_path))
-import experiment
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 import datetime
 import threading
 from experiment import MediaMTX
+
+experiment_path = Path(__file__).parent.parent / "experiment"
+sys.path.insert(0, str(experiment_path))
+import experiment
+
 
 HOME = Path.home()
 USER = os.environ.get("USER") or os.environ.get("LOGNAME") or os.getlogin()
@@ -91,10 +95,10 @@ try:
                     remaining_minutes = CFG_DICT['garden_first_notification'] // 60
                     current_page.show_non_blocking_popup(f"{remaining_minutes} minutes remaining", duration_seconds=10)
 
-    if not submitted:
-        current_page.force_tab_active()
-        print('Please submit')
-        current_page.show_non_blocking_popup(f"Please submit your business plan!", duration_seconds=10)
+        if (time.time() - start_time_garden > (CFG_DICT["garden_allowed_duration"])) and not submitted:
+            current_page.force_tab_active()
+            print('Please submit')
+            current_page.show_non_blocking_popup(f"Please submit your business plan!", duration_seconds=10)
 
     if current_page.browser_handler.wait_for_actual_click(
         (By.ID, "NextButton"), timeout=9999):
@@ -116,11 +120,20 @@ except Exception as e:
     print(f"Experiment failed with exception: {e}")
 
 finally:
+    try:
+        if current_page and current_page.browser_handler and current_page.browser_handler.browser:
+            print("Closing the browser...")
+            current_page.browser_handler.browser.quit()
+    except Exception as e:
+        print(f"Failed to close browser with error: {e}")
+
     if mediamtx_proc and mediamtx_proc.poll() is None:
         print("Terminating mediamtx process...")
         mediamtx_proc.terminate()
         try:
             mediamtx_proc.wait(timeout=5)
-        except Exception:
+        except Exception as e:
             mediamtx_proc.kill()
         print("mediamtx terminated (cleanup).")
+
+print("Participant closed the browser. Exiting gracefully.")
