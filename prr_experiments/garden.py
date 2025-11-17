@@ -36,8 +36,7 @@ class State(IntEnum):
 
 recordings_dir = HOME / "data" / "garden"
 recordings_dir.mkdir(parents=True, exist_ok=True)
-mediamtx_proc = MediaMTX.start_mediamtx(str(Path.cwd() / 'prr_experiments' / "record_garden.yaml"),
-                                        env=env)
+mediamtx_proc = MediaMTX.start_mediamtx(str(Path.cwd() / 'prr_experiments' / "record_garden.yaml"))
 
 EXP_CFG  = Path.cwd() / 'prr_experiments' / 'private' / "PRR_CONFIG.yaml"
 CFG_DICT = yaml.safe_load(open(EXP_CFG.__str__(), 'r'))
@@ -112,22 +111,8 @@ try:
         time.sleep(2)
         print("mediamtx will be terminated.")
 
-    while current_page.browser_handler.is_browser_open():
-        time.sleep(1)
-
-    print("Participant closed the browser. Exiting gracefully.")
-
 except Exception as e:
     print(f"Experiment failed with exception: {e}")
-
-finally:
-    try:
-        if current_page and current_page.browser_handler and current_page.browser_handler.browser:
-            print("Closing the browser...")
-            current_page.browser_handler.browser.quit()
-    except Exception as e:
-        print(f"Failed to close browser with error: {e}")
-
     if mediamtx_proc and mediamtx_proc.poll() is None:
         print("Terminating mediamtx process...")
         mediamtx_proc.terminate()
@@ -136,5 +121,3 @@ finally:
         except Exception as e:
             mediamtx_proc.kill()
         print("mediamtx terminated (cleanup).")
-
-print("Participant closed the browser. Exiting gracefully.")
