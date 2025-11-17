@@ -12,7 +12,7 @@ import datetime
 import threading
 from experiment import MediaMTX
 
-experiment_path = Path(__file__).parent.parent / "experiment"
+experiment_path = Path(__file__).parent / "experiment"
 sys.path.insert(0, str(experiment_path))
 import experiment
 
