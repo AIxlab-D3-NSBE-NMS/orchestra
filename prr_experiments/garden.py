@@ -1,4 +1,5 @@
 import pdb
+import os
 import sys
 from pathlib import Path
 import yaml
@@ -10,6 +11,10 @@ from selenium.webdriver.common.by import By
 import time
 import datetime
 import threading
+from experiment import MediaMTX
+
+HOME = Path.home()
+USER = os.environ.get("USER") or os.environ.get("LOGNAME") or os.getlogin()
 
 
 class State(IntEnum):
@@ -25,30 +30,21 @@ class State(IntEnum):
     CYCLE6_QUALTRICS        = auto()
     CYCLE6_THANKYOU         = auto()
 
-
+recordings_dir = HOME / "data" / "garden"
+recordings_dir.mkdir(parents=True, exist_ok=True)
+mediamtx_proc = MediaMTX.start_mediamtx(str(Path.cwd() / 'prr_experiments' / "record_garden.yaml"))
 
 
 # Add the experiment directory to sys.path
 EXP_CFG  = Path.cwd() / 'prr_experiments' / 'private' / "PRR_CONFIG.yaml"
 CFG_DICT = yaml.safe_load(open(EXP_CFG.__str__(), 'r'))
-# dict_keys([   'informed_consent_taikai',
-#               'informed_consent_cyclesix',
-#               'celfocus_cyclesix_url',
-#               'taikai_garden_url'])
+
 welcome_url = EXP_CFG.parent / CFG_DICT['welcome_page']
 if CFG_DICT['informed_consent_taikai'].split('.')[-1]=='html':
     CFG_DICT['informed_consent_taikai'] = (EXP_CFG.parent / CFG_DICT['informed_consent_taikai']).as_uri()
 
 browser_handler = experiment.ChromiumHandler()
 browser_handler.create_new_window()
-
-# recording init class, but don't record yet
-rec = experiment.ScreenRecorder()
-recordings_dir = Path('/home/labadmin/data/garden')
-recordings_dir.mkdir(parents=True, exist_ok=True)
-def _new_recording_path(prefix="garden"):
-    ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    return recordings_dir / f"{prefix}_{ts}.mkv"
 
 state = State.WELCOME
 current_page = experiment.WebPage(  welcome_url.as_uri(),
@@ -64,70 +60,62 @@ state = State.GARDEN_CONSENT
 if current_page.browser_handler.wait_for_actual_click(
     (By.XPATH, "//button[@aria-label='Submit']"), timeout=9999):
     print('Consent submitted! Start recording screen')
-    # TODO: TOGGLE SCREEN RECORDING
+    MediaMTX.start_recording("screen") # start recording
     time.sleep(1)
     current_page.browser_handler.browser.get(CFG_DICT['taikai_qualtrics'])
+    print(f"Screen recording started")
 
 state = State.GARDEN_QUALTRICS_PHASE1
 
 if current_page.monitor_for_target_text('https://garden.taikai.network/feed'):
-    print('Start COUNTDOWN, starting screen recording')
-    out_file = _new_recording_path(prefix="garden")
-    # rec.start_recording(
-    #     output_path=str(out_file),
-    #     display=":0.0",
-    #     video_size="3840x2400",
-    #     framerate=60,
-    #     encoder="h264_nvenc",
-    #     bitrate="12M",
-    # )
-    print(f"Screen recording started -> {out_file}")
     time.sleep(1)
 
-
-
+submitted = False
 state = State.GARDEN_USEMENTOR
 # start haf an hour countdown, warn at 15 left and 5 left
 notified_1st = False
 notified_2nd = False
 start_time_garden = time.time()
 while time.time() - start_time_garden < CFG_DICT['garden_allowed_duration']:
+    if submitted:
+        break
     if time.time() - start_time_garden > (CFG_DICT['garden_allowed_duration']-CFG_DICT['garden_first_notification']) \
         and not notified_1st:
-            print('showing first timw notification')
+            print('showing first time notification')
             notified_1st = True
             remaining_minutes = CFG_DICT['garden_first_notification'] // 60
-            current_page.force_tab_active()
-            current_page.show_non_blocking_popup(f"{remaining_minutes} minutes remaining", duration_seconds=10)
+            if not submitted:
+                current_page.force_tab_active()
+                current_page.show_non_blocking_popup(f"{remaining_minutes} minutes remaining", duration_seconds=10)
 
     if time.time() - start_time_garden > (CFG_DICT["garden_allowed_duration"]-CFG_DICT["garden_second_notification"]) \
         and not notified_2nd:
             notified_2nd = True
             current_page.force_tab_active()
-            remaining_minutes = CFG_DICT['garden_first_notification'] // 60
-            current_page.show_non_blocking_popup(f"{remaining_minutes} minutes remaining", duration_seconds=10)
+            if not submitted:
+                remaining_minutes = CFG_DICT['garden_first_notification'] // 60
+                current_page.show_non_blocking_popup(f"{remaining_minutes} minutes remaining", duration_seconds=10)
 
-current_page.force_tab_active()
-print('Please submit')
-current_page.show_non_blocking_popup(f"Please submit your business plan!", duration_seconds=10)
+if not submitted:
+    current_page.force_tab_active()
+    print('Please submit')
+    current_page.show_non_blocking_popup(f"Please submit your business plan!", duration_seconds=10)
 
 if current_page.browser_handler.wait_for_actual_click(
     (By.ID, "NextButton"), timeout=9999):
     print('Submitted business plan')
-    # TODO: TOGGLE SCREEN RECORDING
+    submitted = True
 
-    # send request to mediamtx api to stop recording the screen and kill the mediamtx pid
-    # ok = rec.stop_recording(timeout=9999)
-    # if ok:
-    #     print("Recording stopped and finalized.")
-    # else:
-    #     print("Graceful stop timed out; forcing termination.")
-    #     rec.force_stop()
+if current_page.monitor_for_target_text("Thank you for completing this experiment"):
+    print("Detected completion message.")
+    MediaMTX.stop_recording("screen")
+    time.sleep(2)  # Give mediamtx time to flush/close files
+    mediamtx_proc.terminate()
+    mediamtx_proc.wait()
+    print("mediamtx terminated.")
 
-    time.sleep(20)
-    current_page.browser_handler.browser.close()
+# Wait for browser closure by participant
+while browser_handler.is_browser_open():
+    time.sleep(1)
 
-
-
-
-breakpoint()
+print("Participant closed the browser. Exiting gracefully.")

@@ -7,7 +7,44 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoAlertPresentException
+import selenium.common.exceptions
 import time, threading
+import subprocess
+import requests
+
+class MediaMTX:
+    @staticmethod
+    def start_mediamtx(config_path):
+        proc = subprocess.Popen(
+            ["mediamtx", config_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        print(f"Started mediamtx with PID {proc.pid}")
+        return proc
+
+    @staticmethod
+    def set_path_record_status(ip_address, path_name, enable, port=9997, timeout=2):
+        payload = {"record": bool(enable)}
+        try:
+            r = requests.patch(
+                f"http://{ip_address}:{port}/v3/config/paths/patch/{path_name}",
+                json=payload,
+                timeout=timeout,
+            )
+            print(f"Set record={enable} for path '{path_name}': {r.status_code} {r.text}")
+            return r.ok
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to request: {e}")
+            return False
+
+    @staticmethod
+    def start_recording(path_name="screen", ip_address="localhost", port=9997, timeout=2):
+        return MediaMTX.set_path_record_status(ip_address, path_name, True, port, timeout)
+
+    @staticmethod
+    def stop_recording(path_name="screen", ip_address="localhost", port=9997, timeout=2):
+        return MediaMTX.set_path_record_status(ip_address, path_name, False, port, timeout)
 
 
 class Task:
@@ -165,8 +202,12 @@ class ChromiumHandler():
         if self.browser:
             self.browser.quit()
             self.browser = None
-
-
+    def is_browser_open(self):
+            try:
+                _ = self.browser.current_url
+                return True
+            except selenium.common.exceptions.WebDriverException:
+                return False
 
 class WelcomePageTask(Task):
     """Shows a welcome page. Stays open so user can refer back to it."""

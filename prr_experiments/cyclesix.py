@@ -29,7 +29,7 @@ browser_handler = experiment.ChromiumHandler()
 browser_handler.create_new_window()
 
 rec = experiment.ScreenRecorder()
-recordings_dir = Path('/home/labadmin/data/cyclesix')
+recordings_dir = Path('/home/participant/data/cyclesix')
 recordings_dir.mkdir(parents=True, exist_ok=True)
 def _new_recording_path(prefix="garden"):
     ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -53,13 +53,13 @@ def open_pdf_in_background(pdf_path):
 
 
 state = State.CYCLE6_DEBRIEF
-current_page = experiment.WebPage(  welcome_url.as_uri(),
+current_page = experiment.WebPage(CFG_DICT['informed_consent_cyclesix'],
                                     browser_handler=browser_handler)
 current_page.start() # create browser driver and open url
 
-if (current_page.wait_for_start_click(timeout=9999)):
-    current_page.browser_handler.browser.get(CFG_DICT['informed_consent_cyclesix'])
-    time.sleep(2)
+#if (current_page.wait_for_start_click(timeout=9999)):
+#    current_page.browser_handler.browser.get(CFG_DICT['informed_consent_cyclesix'])
+#    time.sleep(2)
 
 state = State.CYCLE6_CONSENT
 
@@ -75,3 +75,7 @@ if current_page.browser_handler.wait_for_actual_click(
     open_pdf_in_background(EXP_CFG.parent / 'ampara.pdf')
 
 state = State.CYCLE6_USEPLATFORM
+
+breakpoint()
+
+# todo: do not close upon closing pdf
