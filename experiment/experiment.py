@@ -17,7 +17,6 @@ class MediaMTX:
     def start_mediamtx(config_path, env=None):
         proc = subprocess.Popen(
             ["mediamtx", config_path],
-            env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )

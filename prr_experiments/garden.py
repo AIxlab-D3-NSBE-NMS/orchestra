@@ -20,7 +20,6 @@ from experiment import MediaMTX
 
 HOME = Path.home()
 USER = os.environ.get("USER") or os.environ.get("LOGNAME") or os.getlogin()
-env = {"HOME": HOME}
 
 class State(IntEnum):
     WELCOME = 0
