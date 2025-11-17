@@ -10,11 +10,12 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 import datetime
 import threading
-from experiment import MediaMTX
 
-experiment_path = Path(__file__).parent / "experiment"
+
+experiment_path = Path(__file__).parent.parent / "experiment"
 sys.path.insert(0, str(experiment_path))
 import experiment
+from experiment import MediaMTX
 
 
 HOME = Path.home()
