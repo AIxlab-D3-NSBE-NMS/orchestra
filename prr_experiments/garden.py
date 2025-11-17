@@ -47,77 +47,67 @@ if CFG_DICT['informed_consent_taikai'].split('.')[-1]=='html':
 browser_handler = experiment.ChromiumHandler()
 browser_handler.create_new_window()
 
-try:
-    # --- Your experiment logic here ---
-    state = State.WELCOME
-    current_page = experiment.WebPage(welcome_url.as_uri(), browser_handler=browser_handler)
-    current_page.start() # create browser driver and open url
 
-    if (current_page.wait_for_start_click(timeout=9999)):
-        current_page.browser_handler.browser.get(CFG_DICT['informed_consent_taikai'])
-        time.sleep(2)
+# --- Your experiment logic here ---
+state = State.WELCOME
+current_page = experiment.WebPage(welcome_url.as_uri(), browser_handler=browser_handler)
+current_page.start() # create browser driver and open url
 
-    state = State.GARDEN_CONSENT
-    if current_page.browser_handler.wait_for_actual_click(
-        (By.XPATH, "//button[@aria-label='Submit']"), timeout=9999):
-        print('Consent submitted! Start recording screen')
-        MediaMTX.start_recording("screen")
-        time.sleep(1)
-        current_page.browser_handler.browser.get(CFG_DICT['taikai_qualtrics'])
-        print(f"Screen recording started")
+if (current_page.wait_for_start_click(timeout=9999)):
+    current_page.browser_handler.browser.get(CFG_DICT['informed_consent_taikai'])
+    time.sleep(2)
 
-    state = State.GARDEN_QUALTRICS_PHASE1
-    if current_page.monitor_for_target_text('https://garden.taikai.network/feed'):
-        time.sleep(1)
+state = State.GARDEN_CONSENT
+if current_page.browser_handler.wait_for_actual_click(
+    (By.XPATH, "//button[@aria-label='Submit']"), timeout=9999):
+    print('Consent submitted! Start recording screen')
+    MediaMTX.start_recording("screen")
+    time.sleep(1)
+    current_page.browser_handler.browser.get(CFG_DICT['taikai_qualtrics'])
+    print(f"Screen recording started")
 
-    submitted = False
-    state = State.GARDEN_USEMENTOR
-    notified_1st = False
-    notified_2nd = False
-    start_time_garden = time.time()
-    while time.time() - start_time_garden < CFG_DICT['garden_allowed_duration']:
-        if submitted:
-            break
-        if time.time() - start_time_garden > (CFG_DICT['garden_allowed_duration']-CFG_DICT['garden_first_notification']) \
-            and not notified_1st:
-                print('showing first time notification')
-                notified_1st = True
-                remaining_minutes = CFG_DICT['garden_first_notification'] // 60
-                if not submitted:
-                    current_page.force_tab_active()
-                    current_page.show_non_blocking_popup(f"{remaining_minutes} minutes remaining", duration_seconds=10)
+state = State.GARDEN_QUALTRICS_PHASE1
+if current_page.monitor_for_target_text('https://garden.taikai.network/feed'):
+    time.sleep(1)
 
-        if time.time() - start_time_garden > (CFG_DICT["garden_allowed_duration"]-CFG_DICT["garden_second_notification"]) \
-            and not notified_2nd:
-                notified_2nd = True
+submitted = False
+state = State.GARDEN_USEMENTOR
+notified_1st = False
+notified_2nd = False
+start_time_garden = time.time()
+while time.time() - start_time_garden < CFG_DICT['garden_allowed_duration']:
+    if submitted:
+        break
+    if time.time() - start_time_garden > (CFG_DICT['garden_allowed_duration']-CFG_DICT['garden_first_notification']) \
+        and not notified_1st:
+            print('showing first time notification')
+            notified_1st = True
+            remaining_minutes = CFG_DICT['garden_first_notification'] // 60
+            if not submitted:
                 current_page.force_tab_active()
-                if not submitted:
-                    remaining_minutes = CFG_DICT['garden_first_notification'] // 60
-                    current_page.show_non_blocking_popup(f"{remaining_minutes} minutes remaining", duration_seconds=10)
+                current_page.show_non_blocking_popup(f"{remaining_minutes} minutes remaining", duration_seconds=10)
 
-        if (time.time() - start_time_garden > (CFG_DICT["garden_allowed_duration"])) and not submitted:
+    if time.time() - start_time_garden > (CFG_DICT["garden_allowed_duration"]-CFG_DICT["garden_second_notification"]) \
+        and not notified_2nd:
+            notified_2nd = True
             current_page.force_tab_active()
-            print('Please submit')
-            current_page.show_non_blocking_popup(f"Please submit your business plan!", duration_seconds=10)
+            if not submitted:
+                remaining_minutes = CFG_DICT['garden_first_notification'] // 60
+                current_page.show_non_blocking_popup(f"{remaining_minutes} minutes remaining", duration_seconds=10)
 
-    if current_page.browser_handler.wait_for_actual_click(
-        (By.ID, "NextButton"), timeout=9999):
-        print('Submitted business plan')
-        submitted = True
+    if (time.time() - start_time_garden > (CFG_DICT["garden_allowed_duration"])) and not submitted:
+        current_page.force_tab_active()
+        print('Please submit')
+        current_page.show_non_blocking_popup(f"Please submit your business plan!", duration_seconds=10)
 
-    if current_page.monitor_for_target_text("Thank you for completing this experiment"):
-        print("Detected completion message.")
-        MediaMTX.stop_recording("screen")
-        time.sleep(2)
-        print("mediamtx will be terminated.")
+if current_page.browser_handler.wait_for_actual_click(
+    (By.ID, "NextButton"), timeout=9999):
+    print('Submitted business plan')
+    submitted = True
 
-except Exception as e:
-    print(f"Experiment failed with exception: {e}")
-    if mediamtx_proc and mediamtx_proc.poll() is None:
-        print("Terminating mediamtx process...")
-        mediamtx_proc.terminate()
-        try:
-            mediamtx_proc.wait(timeout=5)
-        except Exception as e:
-            mediamtx_proc.kill()
-        print("mediamtx terminated (cleanup).")
+if current_page.monitor_for_target_text("Thank you for completing this experiment"):
+    print("Detected completion message.")
+    MediaMTX.stop_recording("screen")
+    time.sleep(10)
+    print("mediamtx will be terminated.")
+    current_page.cleanup()
