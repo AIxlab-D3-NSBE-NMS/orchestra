@@ -76,6 +76,10 @@ notified_1st = False
 notified_2nd = False
 start_time_garden = time.time()
 while time.time() - start_time_garden < CFG_DICT['garden_allowed_duration']:
+    if current_page.browser_handler.wait_for_actual_click(
+        (By.ID, "NextButton"), timeout=1):
+        print('Submitted business plan')
+        submitted = True
     if submitted:
         break
     if time.time() - start_time_garden > (CFG_DICT['garden_allowed_duration']-CFG_DICT['garden_first_notification']) \
@@ -85,7 +89,7 @@ while time.time() - start_time_garden < CFG_DICT['garden_allowed_duration']:
             remaining_minutes = CFG_DICT['garden_first_notification'] // 60
             if not submitted:
                 current_page.force_tab_active()
-                current_page.show_non_blocking_popup(f"{remaining_minutes} minutes remaining", duration_seconds=10)
+                current_page.show_non_blocking_popup(f"{remaining_minutes} minutes remaining", duration_seconds=1)
 
     if time.time() - start_time_garden > (CFG_DICT["garden_allowed_duration"]-CFG_DICT["garden_second_notification"]) \
         and not notified_2nd:
@@ -93,19 +97,20 @@ while time.time() - start_time_garden < CFG_DICT['garden_allowed_duration']:
             current_page.force_tab_active()
             if not submitted:
                 remaining_minutes = CFG_DICT['garden_first_notification'] // 60
-                current_page.show_non_blocking_popup(f"{remaining_minutes} minutes remaining", duration_seconds=10)
+                current_page.show_non_blocking_popup(f"{remaining_minutes} minutes remaining", duration_seconds=1)
 
     if (time.time() - start_time_garden > (CFG_DICT["garden_allowed_duration"])) and not submitted:
         current_page.force_tab_active()
         print('Please submit')
-        current_page.show_non_blocking_popup(f"Please submit your business plan!", duration_seconds=10)
+        current_page.show_non_blocking_popup(f"Please submit your business plan!", duration_seconds=1)
 
 if current_page.browser_handler.wait_for_actual_click(
     (By.ID, "NextButton"), timeout=9999):
     print('Submitted business plan')
     submitted = True
 
-if current_page.monitor_for_target_text("Thank you for completing this experiment"):
+target_text = 'Please call the person responsible for the room to receive further instructions'
+if current_page.monitor_for_target_text(target_text):
     print("Detected completion message.")
     MediaMTX.stop_recording("screen")
     time.sleep(10)
