@@ -6,6 +6,7 @@ from enum import IntEnum, auto
 experiment_path = Path(__file__).parent.parent / "experiment"
 sys.path.insert(0, str(experiment_path))
 import experiment
+from experiment import MediaMTX
 from selenium.webdriver.common.by import By
 import time
 import datetime
@@ -20,20 +21,17 @@ class State(IntEnum):
     CYCLE6_QUALTRICS        = auto()
     CYCLE6_THANKYOU         = auto()
 
+recordings_dir = HOME / "data" / "cyclesix"
+recordings_dir.mkdir(parents=True, exist_ok=True)
+mediamtx_proc = MediaMTX.start_mediamtx(str(Path.cwd() / 'prr_experiments' / "record_cyclesix.yaml"))
+
 EXP_CFG  = Path.cwd() / 'prr_experiments' / 'private' / "PRR_CONFIG.yaml"
 CFG_DICT = yaml.safe_load(open(EXP_CFG.__str__(), 'r'))
 welcome_url = EXP_CFG.parent / CFG_DICT['welcome_page']
 
-
 browser_handler = experiment.ChromiumHandler()
 browser_handler.create_new_window()
 
-rec = experiment.ScreenRecorder()
-recordings_dir = Path('/home/participant/data/cyclesix')
-recordings_dir.mkdir(parents=True, exist_ok=True)
-def _new_recording_path(prefix="garden"):
-    ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    return recordings_dir / f"{prefix}_{ts}.mkv"
 def open_pdf_in_background(pdf_path):
     try:
         # Use subprocess.Popen to run evince in the background
@@ -69,12 +67,14 @@ if current_page.browser_handler.wait_for_actual_click(
     # TODO: TOGGLE SCREEN RECORDING
     time.sleep(1)
 
-
     state = State.CYCLE6_AMPARA
     current_page.browser_handler.browser.get(CFG_DICT['celfocus_cyclesix_url'])
     open_pdf_in_background(EXP_CFG.parent / 'ampara.pdf')
 
 state = State.CYCLE6_USEPLATFORM
+
+MediaMTX.start_recording("screen")
+MediaMTX.start_recording("owl")
 
 breakpoint()
 
