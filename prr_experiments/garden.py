@@ -114,4 +114,5 @@ if current_page.monitor_for_target_text(target_text):
     MediaMTX.stop_recording("screen")
     time.sleep(10)
     print("mediamtx will be terminated.")
+    MediaMTX.kill_mediamtx(mediamtx_proc)
     current_page.cleanup()

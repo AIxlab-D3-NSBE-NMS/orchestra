@@ -8,6 +8,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoAlertPresentException
 import selenium.common.exceptions
+import os
+import signal
 import time, threading
 import subprocess
 import requests
@@ -46,6 +48,21 @@ class MediaMTX:
     def stop_recording(path_name="screen", ip_address="127.0.0.1", port=9997, timeout=2):
         return MediaMTX.set_path_record_status(ip_address, path_name, False, port, timeout)
 
+    @staticmethod
+    def kill_mediamtx(pid):
+        """Kill the mediamtx process by PID."""
+        try:
+            os.kill(pid, signal.SIGTERM)
+            time.sleep(2)
+            # Check if process is still alive
+            os.kill(pid, 0)
+        except OSError:
+            return  # Process is gone
+        # If still alive, force kill
+        try:
+            os.kill(pid, signal.SIGKILL)
+        except OSError:
+            pass
 
 class Task:
     """A task that runs when triggered and completes based on some condition."""
