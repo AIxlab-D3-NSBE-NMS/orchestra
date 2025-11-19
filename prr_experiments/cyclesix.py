@@ -21,8 +21,6 @@ class State(IntEnum):
     CYCLE6_QUALTRICS        = auto()
     CYCLE6_THANKYOU         = auto()
 
-recordings_dir = HOME / "data" / "cyclesix"
-recordings_dir.mkdir(parents=True, exist_ok=True)
 mediamtx_proc = MediaMTX.start_mediamtx(str(Path.cwd() / 'prr_experiments' / "record_cyclesix.yaml"))
 
 EXP_CFG  = Path.cwd() / 'prr_experiments' / 'private' / "PRR_CONFIG.yaml"
