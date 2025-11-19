@@ -65,14 +65,18 @@ if current_page.browser_handler.wait_for_actual_click(
     # TODO: TOGGLE SCREEN RECORDING
     time.sleep(1)
 
+    MediaMTX.start_recording("screen")
+    MediaMTX.start_recording("owl")
+    time.sleep(1)
+    print('opening cyclesix platform and ampara pdf')
+
     state = State.CYCLE6_AMPARA
     current_page.browser_handler.browser.get(CFG_DICT['celfocus_cyclesix_url'])
     open_pdf_in_background(EXP_CFG.parent / 'ampara.pdf')
 
 state = State.CYCLE6_USEPLATFORM
 
-MediaMTX.start_recording("screen")
-MediaMTX.start_recording("owl")
+
 
 breakpoint()
 
