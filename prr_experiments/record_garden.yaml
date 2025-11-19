@@ -10,7 +10,7 @@ logLevel: info
 # Destinations of log messages; available values are "stdout", "file" and "syslog".
 logDestinations: [file] # stdout
 # If "file" is in logDestinations, this is the file which will receive the logs.
-logFile: /home/participant/data/garden/mediamtx-log.txt
+logFile: /data/garden/mediamtx-log.txt
 # If "syslog" is in logDestinations, use prefix for logs.
 sysLogPrefix: mediamtx
 
@@ -482,7 +482,7 @@ pathDefaults:
   # Extension is added automatically.
   # Available variables are %path (path name), %Y %m %d (year, month, day),
   # %H %M %S (hours, minutes, seconds), %f (microseconds), %z (time zone), %s (unix epoch).
-  recordPath: /home/participant/data/garden/%path/%Y-%m-%d_%H-%M-%S-%f
+  recordPath: /data/garden/%path/%Y-%m-%d_%H-%M-%S-%f
   # Format of recorded segments.
   # Available formats are "fmp4" (fragmented MP4) and "mpegts" (MPEG-TS).
   recordFormat: fmp4
@@ -740,7 +740,7 @@ paths:
       -preset p1
       -f rtsp -rtsp_transport tcp rtsp://localhost:8554/screen
     record: no
-    recordPath: "/home/participant/data/garden/%path/%Y-%m-%d_%H-%M-%S-%f"
+    recordPath: "/data/garden/%path/%Y-%m-%d_%H-%M-%S-%f"
     recordSegmentDuration: "60m"
   # Settings under path "all_others" are applied to all paths that
   # do not match another entry.
