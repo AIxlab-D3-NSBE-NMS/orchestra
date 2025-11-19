@@ -754,7 +754,7 @@ paths:
       -bf 0
       -c:v h264_nvenv
       -preset p1
-      -f rtsp -rstp_transport tcp rtsp://localhost:8554/owl
+      -f rtsp -rtsp_transport tcp rtsp://localhost:8554/owl
     record: no
     recordPath: "/data/cyclesix/%path/%Y-%m-%d_%H-%M-%S-%f"
     recordSegmentDuration: "60m"
