@@ -34,14 +34,14 @@ def open_pdf_in_background(pdf_path):
     try:
         # Use subprocess.Popen to run evince in the background
         # stdout=subprocess.PIPE captures the output, stderr=subprocess.PIPE captures errors
-        process = subprocess.Popen(['evince', pdf_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(['evince', '--page-label=1', pdf_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         # You can optionally capture the outputs if you need them later
-        stdout, stderr = process.communicate()
+        #stdout, stderr = process.communicate()
 
         # Check if there were any errors during execution
-        if process.returncode != 0:
-            print(f"Error opening PDF: {stderr.decode('utf-8')}")
+        #if process.returncode != 0:
+        #    print(f"Error opening PDF: {stderr.decode('utf-8')}")
     except FileNotFoundError:
         print("evince is not installed or not found in the PATH.")
     except Exception as e:
@@ -74,10 +74,12 @@ if current_page.browser_handler.wait_for_actual_click(
     current_page.browser_handler.browser.get(CFG_DICT['celfocus_cyclesix_url'])
     open_pdf_in_background(EXP_CFG.parent / 'ampara.pdf')
 
-state = State.CYCLE6_USEPLATFORM
+while True:
+    if len(current_page.browser_handler.browser.window_handles) > 1:
+        current_page.browser_handler.browser.switch_to.window(current_page.browser_handler.browser.window_handles[-1])
+        current_page.browser_handler.browser.close()
+        current_page.browser_handler.browser.switch_to.window(current_page.browser_handler.browser.window_handles[0])
+        time.sleep(1)
 
-
-
-breakpoint()
 
 # todo: do not close upon closing pdf

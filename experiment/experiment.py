@@ -101,7 +101,9 @@ class ChromiumHandler():
         self.options.add_experimental_option("excludeSwitches", ["enable-automation"])
         self.options.add_experimental_option("prefs", {
                     "profile.default_content_setting_values.notifications": 1,  # 1=allow, 2=block, 0=ask
-                    "profile.managed_default_content_settings.notifications": 1})
+                    "profile.managed_default_content_settings.notifications": 1,
+                    "credentials_enable_service": False,
+                    "profile.password_manager_enabled": False})
         self.browser = webdriver.Chrome(service=self.service, options=self.options)
         # self.browser is the important 'output'
     def open_url(self, url):
