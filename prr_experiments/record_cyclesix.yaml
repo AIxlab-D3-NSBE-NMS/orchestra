@@ -748,7 +748,7 @@ paths:
       -use_wallclock_as_timestamps 1
       -f v4l2
       -input_format nv12
-      -i /dev/v4l/by-id/usb-Owl_Labs__Inc._Meeting_Owl_4_Plus_efff985-video-index0
+      -i /dev/owl-camera0
       -video_size 1920x1080
       -thread_queue_size 64
       -framerate 30
