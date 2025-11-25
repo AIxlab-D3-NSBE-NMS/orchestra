@@ -66,6 +66,7 @@ if current_page.browser_handler.wait_for_actual_click(
     time.sleep(1)
 
     MediaMTX.start_recording("screen")
+    time.sleep(2)
     MediaMTX.start_recording("owl")
     time.sleep(1)
     print('opening cyclesix platform and ampara pdf')
