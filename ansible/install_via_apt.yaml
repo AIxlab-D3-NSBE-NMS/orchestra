@@ -1,0 +1,9 @@
+- name: install via apt
+  hosts: all
+  become: false
+  tasks:
+    - name: Install mediainfo
+      ansible.builtin.apt:
+        name: mediainfo
+        state: present
+        update_cache: yes

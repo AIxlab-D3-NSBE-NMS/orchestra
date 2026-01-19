@@ -1,0 +1,8 @@
+- name: delete files
+  hosts: lab_machines
+  become: false
+  tasks:
+    - name: copy file
+      ansible.builtin.file:
+        path: /etc/apt/preferences.d/nosnap.pref_bak
+        state: absent

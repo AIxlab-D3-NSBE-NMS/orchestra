@@ -1,0 +1,12 @@
+- name: copy mediamtx config file to all hosts
+  hosts: lab_machines
+  become: false
+  tasks:
+    - name: copy file
+      ansible.builtin.copy:
+        src: /home/labadmin/aixlab/ansible/stream_owl.yaml
+        dest: /home/participant/Desktop/stream_owl.yaml
+        owner: participant
+        group: participant
+        mode: '0644'
+

@@ -1,0 +1,10 @@
+- hosts: lab_machines
+  become: yes
+  vars:
+    ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+  tasks:
+    - name: Ensure ssh key for participant user
+      ansible.builtin.authorized_key:
+        user: participant
+        state: present
+        key: "{{ lookup('file', '~/.ssh/expmach_id_ed25519.pub') }}"

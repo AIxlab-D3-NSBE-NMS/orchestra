@@ -1,0 +1,8 @@
+- name: Run mediamtx
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Start mediamtx
+      shell: "nohup mediamtx /home/participant/Desktop/stream_owl.yaml"
+      ignore_unreachable: yes
+

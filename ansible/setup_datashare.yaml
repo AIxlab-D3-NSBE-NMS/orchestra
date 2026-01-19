@@ -1,0 +1,33 @@
+- name: Configure shared /data directory with group-based access
+  hosts: dataless
+  become: false
+  gather_facts: false
+
+  vars:
+    shared_dir: /data
+    shared_group: datashare
+    shared_users:
+      - labadmin
+      - participant
+
+  tasks:
+    - name: Ensure group exists
+      ansible.builtin.group:
+        name: "{{ shared_group }}"
+        state: present
+
+    - name: Ensure users are members of the shared group (append, do not remove other groups)
+      ansible.builtin.user:
+        name: "{{ item }}"
+        groups: "{{ shared_group }}"
+        append: true
+      loop: "{{ shared_users }}"
+
+    - name: Ensure shared directory exists
+      ansible.builtin.file:
+        path: "{{ shared_dir }}"
+        state: directory
+        owner: root
+        group: "{{ shared_group }}"
+        mode: "2770"
+

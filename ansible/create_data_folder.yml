@@ -1,0 +1,11 @@
+- name: copy mediamtx config file to all hosts
+  hosts: lab_machines
+  become: false
+  tasks:
+    - name: copy file
+      ansible.builtin.file:
+        path: /data/multistream
+        state: directory
+        owner: participant
+        group: participant
+        mode: '0777'

@@ -1,0 +1,15 @@
+- name: Configure MediaMTX
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Disable recording for MediaMTX path owl
+      ansible.builtin.uri:
+        url: "http://{{ ansible_host | default(inventory_hostname) }}:9997/v3/config/paths/patch/owl"
+        method: PATCH
+        headers:
+          Content-Type: "application/json"
+        body_format: json
+        body:
+          record: true
+
