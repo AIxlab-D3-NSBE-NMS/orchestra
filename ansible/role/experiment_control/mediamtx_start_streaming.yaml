@@ -1,0 +1,11 @@
+- name: Run mediamtx
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Start mediamtx
+      ansible.builtin.shell: mediamtx /home/participant/Desktop/stream_owl.yaml
+      async: 86400
+      poll: 0
+      register: mediamtx_job
+      ignore_unreachable: yes
+

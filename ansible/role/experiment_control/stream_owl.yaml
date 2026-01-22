@@ -492,7 +492,7 @@ pathDefaults:
   # Therefore, the part duration is equal to the RPO (recovery point objective).
   recordPartDuration: 1s
   # Minimum duration of each segment.
-  recordSegmentDuration: 1h
+  recordSegmentDuration: 15m
   # Delete segments after this timespan.
   # Set to 0s to disable automatic deletion.
   recordDeleteAfter: 0s
@@ -731,8 +731,8 @@ paths:
     runOnInit: ffmpeg
       -use_wallclock_as_timestamps 1
       -f x11grab
-      -i ${DISPLAY}
-      -video_size 1920x1200
+      -i :0.0
+      -video_size 3840x2400
       -thread_queue_size 32
       -framerate 30
       -bf 0
@@ -742,13 +742,13 @@ paths:
       -f rtsp -rtsp_transport tcp rtsp://localhost:8554/screen
     record: no
     recordPath: "/data/multistream/%path/%Y-%m-%d_%H-%M-%S-%f"
-    recordSegmentDuration: "5m"
+    recordSegmentDuration: "15m"
   owl:
     runOnInit: ffmpeg
       -use_wallclock_as_timestamps 1
       -f v4l2
       -input_format mjpeg
-      -video_size 3840x2160
+      -video_size 1920x1080
       -framerate 30
       -i /dev/video0
       -f pulse
@@ -771,7 +771,7 @@ paths:
       -f rtsp -rtsp_transport tcp rtsp://localhost:8554/owl
     record: no
     recordPath: "/data/multistream/%path/%Y-%m-%d_%H-%M-%S-%f"
-    recordSegmentDuration: "5m"
+    recordSegmentDuration: "15m"
   # Settings under path "all_others" are applied to all paths that
   # do not match another entry.
   # all_others:

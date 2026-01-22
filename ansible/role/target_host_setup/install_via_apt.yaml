@@ -2,8 +2,8 @@
   hosts: all
   become: false
   tasks:
-    - name: Install mediainfo
+    - name: Install smbclient
       ansible.builtin.apt:
-        name: mediainfo
+        name: smbclient
         state: present
         update_cache: yes

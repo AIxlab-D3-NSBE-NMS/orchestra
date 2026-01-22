@@ -1,0 +1,14 @@
+- name: Copy 'stream' folder contents to Synology guest share
+  hosts: all
+  gather_facts: yes
+  vars:
+    synology_server: 192.168.10.201
+    synology_share: datadump
+    local_stream_dir: /data/multistream
+
+  tasks:
+    - name: Upload stream contents to existing host folder on Synology
+      ansible.builtin.command: >
+        smbclient //{{ synology_server }}/{{ synology_share }} -N -c "lcd {{ local_stream_dir }}; cd {{ ansible_hostname }}; prompt; recurse; mput *"
+      args:
+        chdir: "{{ local_stream_dir }}"

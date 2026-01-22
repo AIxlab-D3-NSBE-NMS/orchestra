@@ -4,7 +4,7 @@
   tasks:
     - name: copy file
       ansible.builtin.file:
-        path: /data/multistream
+        path: /data/multistream/screen
         state: directory
         owner: participant
         group: participant

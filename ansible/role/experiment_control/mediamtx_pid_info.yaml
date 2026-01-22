@@ -1,0 +1,12 @@
+- name: Run mediamtx
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Get MediaMTX runtime from ps
+      ansible.builtin.shell: "ps -o etimes= -C mediamtx"
+      register: mediamtx_runtime
+      ignore_errors: yes
+      
+    - name: show mediamtx runtime
+      ansible.builtin.debug:
+        msg: MediaMTX has been running for {{ mediamtx_runtime.stdout_lines[0] | default('not running') }} seconds

@@ -1,0 +1,9 @@
+- name: copy mediamtx config file to all hosts
+  hosts: lab_machines
+  become: true
+  tasks:
+    - name: copy file
+      ansible.builtin.copy:
+        src: /home/labadmin/Desktop/lightdm.conf
+        dest: /etc/lightdm
+

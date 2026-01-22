@@ -1,0 +1,49 @@
+- name: Configure eduroam via NetworkManager
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  vars_files:
+    - /home/labadmin/aixlab/administrationlab/eduroam_creds.yml
+
+  vars:
+    eduroam_ssid: "eduroam"
+    wifi_metric: 50
+    ethernet_metric: 600
+  tasks:
+    - name: Ensure NetworkManager is running
+      ansible.builtin.service:
+        name: NetworkManager
+        state: started
+        enabled: yes
+        
+    - name: Configure Ethernet route metric (LAN only)
+      ansible.builtin.command: >
+        nmcli connection modify "Wired connection 1" ipv4.route-metric {{ ethernet_metric }}
+      ignore_errors: yes 
+      
+      
+    - name: Configure eduroam connection
+      ansible.builtin.command: >
+       nmcli connection add
+        type wifi
+        ifname "*"
+        con-name eduroam
+        ssid {{ eduroam_ssid }}
+        wifi-sec.key-mgmt wpa-eap
+        802-1x.eap peap
+        802-1x.identity {{ eduroam_users[ansible_hostname].user }}
+        802-1x.password {{ eduroam_users[ansible_hostname].pass }}
+        802-1x.password-flags 0
+        802-1x.phase2-auth mschapv2
+        ipv4.route-metric {{ wifi_metric }}
+      args:
+        creates: /etc/NetworkManager/system-connections/eduroam.nmconnection
+        
+      become: yes
+    - name: Bring eduroam up
+      ansible.builtin.command: nmcli connection up eduroam
+      ignore_errors: yes
+
+
+

@@ -1,0 +1,9 @@
+- name: Shutdown all hosts using systemd
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Power off the host
+      ansible.builtin.shell: "shutdown -h now 'via ansible'"
+      become: yes
+

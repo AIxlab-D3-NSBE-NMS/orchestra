@@ -1,0 +1,10 @@
+- name: Reboot all hosts using systemd
+  hosts: all
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Reboot off the host
+      ansible.builtin.shell: reboot
+      async: 60
+      poll: 0
+

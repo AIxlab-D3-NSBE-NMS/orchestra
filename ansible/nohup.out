@@ -1,4 +1,0 @@
-
-(gedit:18971): GLib-GIO-CRITICAL **: 18:21:20.736: GTask 0x60cca7a18f20 (source object: 0x60cca2772230, source tag: (nil)) finalized without ever returning (using g_task_return_*()). This potentially indicates a bug in the program.
-
-(gedit:18971): GLib-GIO-CRITICAL **: 19:11:36.908: GTask 0x60cca26c9810 (source object: 0x60cca2772230, source tag: (nil)) finalized without ever returning (using g_task_return_*()). This potentially indicates a bug in the program.

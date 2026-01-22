@@ -12,3 +12,7 @@ ansible all -i inventory.ini -m shell -a "mediamtx /home/participant/Desktop/str
 ansible-playbook -i inventory.ini mediamtx_start_streaming.yaml -f 22
 
 curl -X PATCH "http://192.168.10.101:9997/v3/config/paths/patch/owl" -H "Content-Type: application/json" -d '{"record": false}'
+
+
+ansible-playbook -i inventory_as_labadmin.ini shutdown_all_hosts.yaml --ask-become-pass
+
