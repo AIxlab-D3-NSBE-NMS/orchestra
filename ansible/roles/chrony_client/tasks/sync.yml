@@ -1,0 +1,6 @@
+# roles/chrony_client/tasks/sync.yml
+- name: Force chrony to resync
+  command: chronyc -a makestep
+  register: makestep_result
+  changed_when: "'200 OK' in makestep_result.stdout"
+

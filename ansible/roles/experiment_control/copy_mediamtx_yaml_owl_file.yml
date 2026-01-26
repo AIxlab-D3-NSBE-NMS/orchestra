@@ -4,7 +4,7 @@
   tasks:
     - name: copy file
       ansible.builtin.copy:
-        src: /home/labadmin/aixlab/code/orchestra/ansible/stream_owl.yaml
+        src: /home/labadmin/aixlab/code/orchestra/ansible/roles/experiment_control/stream_owl.yaml
         dest: /home/participant/Desktop/stream_owl.yaml
         owner: participant
         group: participant

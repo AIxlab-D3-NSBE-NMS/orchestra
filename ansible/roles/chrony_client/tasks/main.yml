@@ -1,0 +1,5 @@
+# roles/chrony_client/tasks/main.yml
+- import_tasks: configure.yml
+- import_tasks: sync.yml
+- import_tasks: metrics.yml
+

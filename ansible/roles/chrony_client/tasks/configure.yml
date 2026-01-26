@@ -1,0 +1,15 @@
+- name: Debug ntp_server_ip before using it
+  debug:
+    msg:
+      - "ntp_server_ip={{ ntp_server_ip }}"
+      - "type={{ ntp_server_ip | type_debug }}"
+
+- name: Deploy chrony configuration
+  template:
+    src: chrony.conf.j2
+    dest: "{{ chrony_conf_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart chrony
+

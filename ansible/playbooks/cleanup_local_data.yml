@@ -1,0 +1,20 @@
+- name: Clear /data/multistream/ directory on target hosts
+  hosts: all
+  become: false   # escalate privileges if needed
+  vars:
+    target_dir: /data/multistream
+
+  tasks:
+    - name: Ensure the target directory exists
+      file:
+        path: "{{ target_dir }}"
+        state: directory
+
+    - name: Delete all contents inside the directory
+      ansible.builtin.shell: rm -rf /data/multistream/*
+        
+    - name: Recreate the directory (optional, ensures empty directory exists)
+      file:
+        path: "{{ target_dir }}"
+        state: directory
+

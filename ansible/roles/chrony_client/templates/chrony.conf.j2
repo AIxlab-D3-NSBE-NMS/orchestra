@@ -1,0 +1,15 @@
+# roles/chrony_client/templates/chrony.conf.j2
+
+# Use only the LAN NAS as time source
+server {{ ntp_server_ip }} iburst prefer
+
+# Disable public pools
+# (Do not include pool or server entries here)
+
+driftfile /var/lib/chrony/chrony.drift
+makestep 1.0 3
+rtcsync
+
+logdir /var/log/chrony
+log measurements statistics tracking
+

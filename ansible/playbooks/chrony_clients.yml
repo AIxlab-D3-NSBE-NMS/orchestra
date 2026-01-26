@@ -1,0 +1,6 @@
+- name: Configure chrony on LAN clients
+  hosts: ntp_clients
+  become: yes
+  roles:
+    - chrony_client
+

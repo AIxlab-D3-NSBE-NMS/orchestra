@@ -10,7 +10,7 @@ logLevel: info
 # Destinations of log messages; available values are "stdout", "file" and "syslog".
 logDestinations: [file] # stdout
 # If "file" is in logDestinations, this is the file which will receive the logs.
-logFile: /home/participant/mediamtx-log.txt
+logFile: /data/multistream/mediamtx-log.txt
 # If "syslog" is in logDestinations, use prefix for logs.
 sysLogPrefix: mediamtx
 
@@ -20,7 +20,7 @@ readTimeout: 10s
 writeTimeout: 10s
 # Size of the queue of outgoing packets.
 # A higher value allows to increase throughput, a lower value allows to save RAM.
-writeQueueSize: 512
+writeQueueSize: 2048
 # Maximum size of outgoing UDP packets.
 # This can be decreased to avoid fragmentation on networks with a low UDP MTU.
 udpMaxPayloadSize: 1472
@@ -772,6 +772,7 @@ paths:
     record: no
     recordPath: "/data/multistream/%path/%Y-%m-%d_%H-%M-%S-%f"
     recordSegmentDuration: "15m"
+  runOnInitRestart: true
   # Settings under path "all_others" are applied to all paths that
   # do not match another entry.
   # all_others:

@@ -1,0 +1,5 @@
+# roles/chrony_client/handlers/main.yml
+- name: Restart chrony
+  service:
+    name: chrony
+    state: restarted

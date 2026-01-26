@@ -1,0 +1,11 @@
+# roles/chrony_client/tasks/metrics.yml
+- name: Get chrony tracking data
+  command: chronyc tracking
+  register: chrony_tracking
+  changed_when: false
+
+- name: Get chrony sources data
+  command: chronyc sources -v
+  register: chrony_sources
+  changed_when: false
+

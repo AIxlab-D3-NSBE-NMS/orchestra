@@ -1,0 +1,8 @@
+- name: install chrony
+  hosts: all
+  become: true
+  tasks:
+    - name: ensure chrony is installed
+      ansible.builtin.apt: 
+        name: chrony
+        state: present
