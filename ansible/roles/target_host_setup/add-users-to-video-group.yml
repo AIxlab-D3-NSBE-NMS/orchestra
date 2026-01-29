@@ -1,0 +1,12 @@
+- name: Add users to video group
+  hosts: all
+  become: yes
+  tasks:
+    - name: add users to video group
+      ansible.builtin.user:
+        name: "{{ item }}"
+        groups: render
+        append: yes
+      loop:
+        - labadmin
+        - participant

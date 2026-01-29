@@ -1,9 +1,15 @@
 - name: install via apt
   hosts: all
-  become: false
+  become: true
   tasks:
-    - name: Install smbclient
+    - name: Install ffmpeg and pipewire
       ansible.builtin.apt:
-        name: smbclient
+        name: 
+          - pipewire
+          - pipewire-bin
+          - pipewire-pulse
+          - pipewire-jack
+          - libpipewire-0.3-dev
+          - ffmpeg
         state: present
-        update_cache: yes
+        update_cache: no

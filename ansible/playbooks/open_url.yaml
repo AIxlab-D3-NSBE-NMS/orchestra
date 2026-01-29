@@ -1,0 +1,26 @@
+---
+- name: Launch Chromium in kiosk mode on demand
+  hosts: lab_machines
+  become: false
+  vars:
+    kiosk_url: "https://cmu.ca1.qualtrics.com/jfe/form/SV_5C7t9vbjWjLCrZ4"
+    kiosk_user: "participant"          # The user that owns the X session
+    display: ":0"                  # Adjust if needed
+    chromium_cmd: "/snap/bin/chromium"  # Or /snap/bin/chromium
+
+    chromium_flags: >
+      --app={{ kiosk_url }}
+      --kiosk
+      --noerrdialogs
+      --disable-session-crashed-bubble
+      --disable-infobars
+      --start-fullscreen
+      --autoplay-policy=no-user-gesture-required
+
+  tasks:
+    - name: Launch Chromium in kiosk mode
+      become_user: "{{ kiosk_user }}"
+      environment:
+        DISPLAY: "{{ display }}"
+      command: >
+        {{ chromium_cmd }} {{ chromium_flags }}
