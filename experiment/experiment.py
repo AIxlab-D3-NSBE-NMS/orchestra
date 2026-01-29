@@ -1,6 +1,6 @@
 import undetected_chromedriver as uc
 from selenium import webdriver  # to control the browser
-from selenium.webdriver.chrome.service import Service as ChromeService
+#from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.chromium.webdriver import ChromiumDriver
 from selenium.webdriver.common.by import By
@@ -88,13 +88,13 @@ class ChromiumHandler():
     DEFAULT_CHECK_INTERVAL = 0.5 # every 0.5 seconds checks for callback / clicks
     def __init__(self):
         self.browser        = None # driver
-        self.service        = None
+        # self.service        = None
         self.options        = None
         self.monitoring     = False
         self.monitor_thread = None
         self.callbacks      = {}  # event_name: callback_function
     def create_new_window(self):
-        self.service    = ChromeService("/usr/bin/chromedriver")
+        # self.service    = Service() #ChromeService("/usr/bin/chromedriver")
         self.options    = ChromeOptions()
         # important: the following line suppresses the google chromium banner
         # saying that the browser is being controlled externally
@@ -104,7 +104,7 @@ class ChromiumHandler():
                     "profile.managed_default_content_settings.notifications": 1,
                     "credentials_enable_service": False,
                     "profile.password_manager_enabled": False})
-        self.browser = uc.Chrome(service=self.service, options=self.options)
+        self.browser = uc.Chrome(version_main=144, options=self.options)
         # self.browser is the important 'output'
     def open_url(self, url):
         self.browser.get(url)
