@@ -1,0 +1,59 @@
+---
+- name: Stop kiosk Chromium cleanly (marker or profile), no sudo
+  hosts: lab_machines
+  gather_facts: false
+  become: false
+
+  vars:
+    # Use ONE of these selectors. Marker is best if you added it in launch flags.
+    kiosk_marker: "QUALTRICS_KIOSK"     # matches --kiosk-marker=QUALTRICS_KIOSK in argv
+    kiosk_profile: "/home/{{ ansible_user }}/.config/chromium-kiosk"  # if you used --user-data-dir=
+
+    # If you accidentally created an autostart, remove it to prevent re-spawn.
+    autostart_file: "/home/{{ ansible_user }}/.config/autostart/chromium-kiosk.desktop"
+
+    # How long to wait after TERM before KILL
+    grace_seconds: 2
+
+  tasks:
+    - name: (Optional) Remove kiosk autostart so it won't respawn
+      ansible.builtin.file:
+        path: "{{ autostart_file }}"
+        state: absent
+
+    - name: List matching Chromium processes by marker or profile (for diagnostics)
+      ansible.builtin.shell: |
+        ps ax -o pid= -o ppid= -o user= -o cmd= \
+        | egrep -E -- '--kiosk-marker={{ kiosk_marker }}|{{ kiosk_profile | regex_escape }}' \
+        | awk '{print $1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9}'
+      register: ps_match
+      changed_when: false
+
+    - name: Show matched processes (if any)
+      ansible.builtin.debug:
+        msg: "{{ ps_match.stdout_lines | default([]) }}"
+
+    - name: Gracefully TERM kiosk Chromium by marker/profile
+      ansible.builtin.shell: |
+        pkill -u "{{ ansible_user }}" -15 -f -- "--kiosk-marker={{ kiosk_marker }}" || true
+        pkill -u "{{ ansible_user }}" -15 -f -- "{{ kiosk_profile }}" || true
+      changed_when: true
+
+    - name: Wait a moment for graceful shutdown
+      ansible.builtin.wait_for:
+        timeout: "{{ grace_seconds }}"
+
+    - name: Hard KILL anything still matching
+      ansible.builtin.shell: |
+        pkill -u "{{ ansible_user }}" -9 -f -- "--kiosk-marker={{ kiosk_marker }}" || true
+        pkill -u "{{ ansible_user }}" -9 -f -- "{{ kiosk_profile }}" || true
+      changed_when: true
+
+    # Final sweep for chrome family processes launched by kiosk that may not include the marker
+    - name: Final sweep: kill child chrome processes that survived (zygote, gpu, crashpad)
+      ansible.builtin.shell: |
+        # If kiosk used a dedicated profile dir, this will catch the children:
+        pgrep -u "{{ ansible_user }}" -af "(chrome|chromium|chromium-browser)" \
+          | egrep -q "{{ kiosk_profile | regex_escape }}" \
+          && pkill -u "{{ ansible_user }}" -9 -f "{{ kiosk_profile }}" || true
+      changed_when: false

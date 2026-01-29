@@ -1,0 +1,16 @@
+---
+- name: Wake screens on X11 machines
+  hosts: lab_machines
+  become: false
+
+  vars:
+    kiosk_user: "participant"
+    display: ":0"
+
+  tasks:
+    - name: Wake up screen (X11 DPMS force on)
+      ansible.builtin.command: xset dpms force on && xset s reset
+      become_user: "{{ kiosk_user }}"
+      environment:
+        DISPLAY: "{{ display }}"
+

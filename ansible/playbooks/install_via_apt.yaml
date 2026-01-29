@@ -1,0 +1,10 @@
+- name: install via apt
+  hosts: all
+  become: true
+  tasks:
+    - name: Install xdotool
+      ansible.builtin.apt:
+        name: 
+          - xdotool
+        state: present
+        update_cache: no

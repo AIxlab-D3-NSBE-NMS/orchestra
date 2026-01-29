@@ -1,0 +1,17 @@
+---
+- name: Wake screens on X11 machines
+  hosts: lab_machines
+
+  vars:
+    kiosk_user: "participant"
+    display: ":0"
+
+  tasks:
+    - name: Wake up screen (X11 DPMS force on)
+
+      environment:
+        DISPLAY: "{{ display }}"
+      ansible.builtin.shell: |
+        xdotool mousemove_relative 1 1
+        xdotool mousemove_relative -- -1 -1
+

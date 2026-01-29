@@ -1,0 +1,15 @@
+---
+- name: Stop Chromium kiosk (kill all Chromium for this user)
+  hosts: lab_machines
+  gather_facts: false
+  become: false
+
+  vars:
+    kiosk_user: "participant"
+    chromium_cmd: "/snap/bin/chromium"   # adjust if different
+
+  tasks:
+    - name: Kill Chromium processes owned by the user
+      ansible.builtin.shell: >
+        pgrep -f chromium | xargs kill
+        

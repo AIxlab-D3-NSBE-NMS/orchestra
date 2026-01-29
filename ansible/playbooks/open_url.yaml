@@ -22,5 +22,7 @@
       become_user: "{{ kiosk_user }}"
       environment:
         DISPLAY: "{{ display }}"
-      command: >
-        {{ chromium_cmd }} {{ chromium_flags }}
+      shell: >
+        nohup setsid {{ chromium_cmd }} {{ chromium_flags }} >/dev/null 2>&1 &
+      async: 60          # time window Ansible will allow the task to run (seconds)
+      poll: 0            # do not wait; return immediately
