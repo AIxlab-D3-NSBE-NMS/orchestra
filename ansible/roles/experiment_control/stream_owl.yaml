@@ -772,7 +772,6 @@ paths:
     record: no
     recordPath: "/data/multistream/%path/%Y-%m-%d_%H-%M-%S-%f"
     recordSegmentDuration: "15m"
-  runOnInitRestart: true
   # Settings under path "all_others" are applied to all paths that
   # do not match another entry.
   # all_others:

@@ -1,0 +1,8 @@
+- name: Run mediamtx
+  hosts: lab_machines
+  gather_facts: no
+  tasks:
+    - name: Start mediamtx
+      shell: "pkill mediamtx"
+      ignore_unreachable: yes
+

@@ -1,0 +1,7 @@
+- name: Run mediamtx
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Stop mediamtx gracefully
+      ansible.builtin.shell: pkill -TERM mediamtx 
+      ignore_errors: true
