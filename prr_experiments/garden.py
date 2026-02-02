@@ -15,7 +15,7 @@ import threading
 experiment_path = Path(__file__).parent.parent / "experiment"
 sys.path.insert(0, str(experiment_path))
 import experiment
-from experiment import MediaMTX
+from experiment import ScreenRecorder
 
 
 HOME = Path.home()
@@ -35,7 +35,8 @@ class State(IntEnum):
 
 recordings_dir = HOME / "data" / "garden"
 recordings_dir.mkdir(parents=True, exist_ok=True)
-mediamtx_proc = MediaMTX.start_mediamtx(str(Path.cwd() / 'prr_experiments' / "record_garden.yaml"))
+screen_recorder = ScreenRecorder()
+screen_rec_path = f"/data/garden/garden_screen_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.mp4"
 
 EXP_CFG  = Path.cwd() / 'prr_experiments' / 'private' / "PRR_CONFIG.yaml"
 CFG_DICT = yaml.safe_load(open(EXP_CFG.__str__(), 'r'))
@@ -60,7 +61,7 @@ state = State.GARDEN_CONSENT
 if current_page.browser_handler.wait_for_actual_click(
     (By.XPATH, "//button[@aria-label='Submit']"), timeout=9999):
     print('Consent submitted! Start recording screen')
-    MediaMTX.start_recording("screen")
+    screen_recorder.start_recording(screen_rec_path)
     time.sleep(1)
     current_page.browser_handler.browser.get(CFG_DICT['taikai_qualtrics'])
     print(f"Screen recording started")
@@ -111,8 +112,8 @@ if current_page.browser_handler.wait_for_actual_click(
 target_text = 'Please call the person responsible for the room to receive further instructions'
 if current_page.monitor_for_target_text(target_text):
     print("Detected completion message.")
-    MediaMTX.stop_recording("screen")
+    screen_recorder.stop_recording()
     time.sleep(10)
     print("mediamtx will be terminated.")
-    MediaMTX.kill_mediamtx(mediamtx_proc)
+    screen_recorder.force_stop()
     current_page.cleanup()

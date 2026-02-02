@@ -727,22 +727,6 @@ pathDefaults:
 # for example "~^(test1|test2)$" will match both "test1" and "test2",
 # for example "~^prefix" will match all paths that start with "prefix".
 paths:
-  screen:
-    runOnInit: ffmpeg
-      -use_wallclock_as_timestamps 1
-      -f x11grab
-      -i ${DISPLAY}
-      -video_size 1920x1200
-      -thread_queue_size 32
-      -framerate 30
-      -bf 0
-      -vf "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf:text='%{localtime\:%H\\%M\\%S}.%{localtime\:%3N}':x=0:y=0:fontsize=16:fontcolor=white:box=1:boxcolor=black,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf:text='Frame\:%{n}':x=0:y=16:fontsize=16:fontcolor=white:box=1:boxcolor=black"
-      -c:v h264_nvenc
-      -preset p1
-      -f rtsp -rtsp_transport tcp rtsp://localhost:8554/screen
-    record: no
-    recordPath: "/data/cyclesix/%path/%Y-%m-%d_%H-%M-%S-%f"
-    recordSegmentDuration: "60m"
   owl:
     runOnInit: ffmpeg
       -use_wallclock_as_timestamps 1

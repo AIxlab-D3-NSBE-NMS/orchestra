@@ -84,3 +84,4 @@ while True:
 
 
 # todo: do not close upon closing pdf
+z

@@ -565,6 +565,7 @@ class ScreenRecorder:
                 "-framerate", str(framerate),
                 "-i", str(display),
                 "-an",  # no audio
+                "-vf", "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf:text='%{localtime\\:%H\\\\%M\\\\%S}.%{localtime\\:%3N}':x=0:y=0:fontsize=16:fontcolor=white:box=1:boxcolor=black,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf:text='Frame\\:%{n}':x=0:y=16:fontsize=16:fontcolor=white:box=1:boxcolor=black"
             ]
 
             # Encoder-specific options
