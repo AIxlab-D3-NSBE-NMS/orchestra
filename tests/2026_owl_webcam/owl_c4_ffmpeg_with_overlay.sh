@@ -18,9 +18,6 @@ get_camera_device() {
 INTEGRATED_CAM=$(get_camera_device "Integrated Camera")
 OWL_CAM=$(get_camera_device "Meeting Owl")
 
-INTEGRATED_CAM=$(readlink -f /dev/v4l/by-id/usb-Chicony_*index0 | sed 's/video[0-9]*/video0/')
-OWL_CAM=(/dev/v4l/by-id/usb-Owl_*index0)
-
 mkdir -p "$OUTPUT_DIR"
 cleanup() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Shutting down gracefully..." | tee -a "$LOG_FILE"
@@ -40,7 +37,7 @@ run_ffmpeg() {
         -f v4l2 -video_size 2560x1440 -input_format mjpeg -thread_queue_size 1024 -i "$OWL_CAM"
         -f pulse -thread_queue_size 1024 -i plughw:CARD=plus,DEV=0
         -bf 0
-        -vf "format=yuv422p,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf:text='%{localtime\:%H\\%M\\%S}.%{localtime\:%3N}':x=0:y=0:fontsize=16:fontcolor=white:box=1:boxcolor=black,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf:text='Frame\:%{n}':x=0:y=16:fontsize=16:fontcolor=white:box=1:boxcolor=black"
+        -vf "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf:text='%{localtime\:%H\\%M\\%S}.%{localtime\:%3N}':x=0:y=0:fontsize=16:fontcolor=white:box=1:boxcolor=black,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf:text='Frame\:%{n}':x=0:y=16:fontsize=16:fontcolor=white:box=1:boxcolor=black"
         -c:v h264_nvenc -preset p1 -c:a aac -b:a 128k
         -y "$output_file"
     )
