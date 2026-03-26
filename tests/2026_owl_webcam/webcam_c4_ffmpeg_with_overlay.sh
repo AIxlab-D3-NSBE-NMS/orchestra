@@ -29,13 +29,25 @@ cleanup() {
 trap cleanup SIGINT SIGTERM
 get_output_file() {
     local timestamp=$(date '+%Y%m%d_%H%M%S')
-    echo "${OUTPUT_DIR}/owl_camera_${timestamp}.mkv"
+    echo "${OUTPUT_DIR}/laptop_camera_${timestamp}.mkv"
 }
 run_ffmpeg() {
     local output_file=$(get_output_file)
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting FFmpeg recording to: $output_file" | tee -a "$LOG_FILE"
-    ffmpeg -hide_banner -f v4l2 -video_size 2592x1944 -input_format mjpeg -thread_queue_size 1024 -i "$INTEGRATED_CAM" -f pulse -thread_queue_size 1024 -i plughw:CARD=sofhdadsp,DEV=6 -bf 0 -pix_fmt yuv420p -vf "format=yuv422p,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf:text='%{localtime\:%H\\%M\\%S}.%{localtime\:%3N}':x=0:y=0:fontsize=16:fontcolor=white:box=1:boxcolor=black,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf:text='Frame\:%{n}':x=0:y=16:fontsize=16:fontcolor=white:box=1:boxcolor=black" -c:v h264_nvenc -preset p1 -c:a aac -b:a 128k -y "$output_file" 2>&1 | tee -a "$LOG_FILE"
-    return $?
+
+    local cmd=(
+        ffmpeg -hide_banner
+        -f v4l2 -video_size 2592x1944 -input_format mjpeg -thread_queue_size 1024 -i "$INTEGRATED_CAM"
+        -f pulse -thread_queue_size 1024 -i plughw:CARD=sofhdadsp,DEV=6
+        -bf 0 -pix_fmt yuv420p
+        -vf "format=yuv422p,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf:text='%{localtime\:%H\\%M\\%S}.%{localtime\:%3N}':x=0:y=0:fontsize=16:fontcolor=white:box=1:boxcolor=black,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf:text='Frame\:%{n}':x=0:y=16:fontsize=16:fontcolor=white:box=1:boxcolor=black"
+        -c:v h264_nvenc -preset p1 -c:a aac -b:a 128k
+        -y "$output_file"
+    )
+
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] FFmpeg command: ${cmd[*]}" | tee -a "$LOG_FILE"
+    "${cmd[@]}" 2>&1 | tee -a "$LOG_FILE"
+    return ${PIPESTATUS[0]}
 }
 main() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Owl Camera Recorder started" | tee -a "$LOG_FILE"

@@ -1,10 +1,26 @@
 #!/bin/bash
 set -u
-OUTPUT_DIR="${OUTPUT_DIR:-.}"
+
+OUTPUT_DIR="/data/owl_and_webcam/"
 LOG_FILE="${OUTPUT_DIR}/owl_camera.log"
 RESTART_DELAY=2
 MAX_RESTART_ATTEMPTS=0
 RESTART_ATTEMPT=0
+
+get_camera_device() {
+    v4l2-ctl --list-devices | awk -v name="$1" '
+        $0 ~ name { found=1; next }
+        found && /\/dev\/video/ { print; next }
+        found && !/\/dev\// { found=0 }
+    ' | sort -t'o' -k2 -n | head -1 | tr -d '[:space:]'
+}
+
+INTEGRATED_CAM=$(get_camera_device "Integrated Camera")
+OWL_CAM=$(get_camera_device "Meeting Owl")
+
+INTEGRATED_CAM=$(readlink -f /dev/v4l/by-id/usb-Chicony_*index0 | sed 's/video[0-9]*/video0/')
+OWL_CAM=(/dev/v4l/by-id/usb-Owl_*index0)
+
 mkdir -p "$OUTPUT_DIR"
 cleanup() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Shutting down gracefully..." | tee -a "$LOG_FILE"
@@ -13,13 +29,25 @@ cleanup() {
 trap cleanup SIGINT SIGTERM
 get_output_file() {
     local timestamp=$(date '+%Y%m%d_%H%M%S')
-    echo "${OUTPUT_DIR}/owl_camera_${timestamp}.mp4"
+    echo "${OUTPUT_DIR}/owl_camera_${timestamp}.mkv"
 }
 run_ffmpeg() {
     local output_file=$(get_output_file)
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting FFmpeg recording to: $output_file" | tee -a "$LOG_FILE"
-    ffmpeg -use_wallclock_as_timestamps 1 -f v4l2 -input_format nv12 -i /dev/video0 -video_size 1920x1080 -thread_queue_size 64 -framerate 30 -bf 0 -vf "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf:text='%{localtime\:%H\\%M\\%S}.%{localtime\:%3N}':x=0:y=0:fontsize=16:fontcolor=white:box=1:boxcolor=black,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf:text='Frame\:%{n}':x=0:y=16:fontsize=16:fontcolor=white:box=1:boxcolor=black" -c:v h264_nvenc -preset p1 -y "$output_file" 2>&1 | tee -a "$LOG_FILE"
-    return $?
+
+    local cmd=(
+        ffmpeg -hide_banner
+        -f v4l2 -video_size 2560x1440 -input_format mjpeg -thread_queue_size 1024 -i "$OWL_CAM"
+        -f pulse -thread_queue_size 1024 -i plughw:CARD=plus,DEV=0
+        -bf 0
+        -vf "format=yuv422p,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf:text='%{localtime\:%H\\%M\\%S}.%{localtime\:%3N}':x=0:y=0:fontsize=16:fontcolor=white:box=1:boxcolor=black,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf:text='Frame\:%{n}':x=0:y=16:fontsize=16:fontcolor=white:box=1:boxcolor=black"
+        -c:v h264_nvenc -preset p1 -c:a aac -b:a 128k
+        -y "$output_file"
+    )
+
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] FFmpeg command: ${cmd[*]}" | tee -a "$LOG_FILE"
+    "${cmd[@]}" 2>&1 | tee -a "$LOG_FILE"
+    return ${PIPESTATUS[0]}
 }
 main() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Owl Camera Recorder started" | tee -a "$LOG_FILE"
