@@ -1,5 +1,5 @@
 - name: Copy 'stream' folder contents to Synology guest share
-  hosts: all
+  hosts: aixlab_hosts
   gather_facts: yes
   vars:
     synology_server: 192.168.10.201

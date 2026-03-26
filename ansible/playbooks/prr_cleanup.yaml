@@ -1,0 +1,12 @@
+---
+- name: Launch remote GUI script without waiting
+  hosts: prr_hosts
+  become: false
+
+  tasks:
+    - name: Schedule GUI script to run immediately
+      shell: |
+        echo "DISPLAY=:0 /home/participant/Desktop/cleanup_between_tasks.sh" | at now
+      args:
+        executable: /bin/bash
+

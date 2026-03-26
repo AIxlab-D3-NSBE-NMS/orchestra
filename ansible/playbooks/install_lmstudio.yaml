@@ -1,0 +1,15 @@
+---
+- name: Install LM Studio on remote machines
+  hosts: all
+  become: yes
+  
+  tasks:
+    - name: Copy LM Studio .deb to remote
+      copy:
+        src: ./LM-Studio-0.2.26.deb
+        dest: /tmp/lm-studio.deb
+        mode: '0644'
+
+    - name: Install LM Studio from copied file
+      apt:
+        deb: /tmp/lm-studio.deb

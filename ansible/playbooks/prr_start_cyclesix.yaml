@@ -1,0 +1,12 @@
+---
+- name: Launch remote GUI script without waiting
+  hosts: prr_hosts
+  become: false
+
+  tasks:
+    - name: Schedule GUI script to run immediately
+      shell: |
+        echo "DISPLAY=:0 /home/participant/aixlab/orchestra/prr_experiments/launch_cyclesix.sh" | at now
+      args:
+        executable: /bin/bash
+

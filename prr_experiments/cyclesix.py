@@ -7,6 +7,7 @@ experiment_path = Path(__file__).parent.parent / "experiment"
 sys.path.insert(0, str(experiment_path))
 import experiment
 from experiment import MediaMTX
+from experiment import ScreenRecorder
 from selenium.webdriver.common.by import By
 import time
 import datetime
@@ -22,6 +23,8 @@ class State(IntEnum):
     CYCLE6_THANKYOU         = auto()
 
 mediamtx_proc = MediaMTX.start_mediamtx(str(Path.cwd() / 'prr_experiments' / "record_cyclesix.yaml"))
+screen_recorder = ScreenRecorder()
+screen_rec_path = f"/data/cyclesix/cyclesix_screen_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.mp4"
 
 EXP_CFG  = Path.cwd() / 'prr_experiments' / 'private' / "PRR_CONFIG.yaml"
 CFG_DICT = yaml.safe_load(open(EXP_CFG.__str__(), 'r'))
@@ -65,15 +68,16 @@ if current_page.browser_handler.wait_for_actual_click(
     # TODO: TOGGLE SCREEN RECORDING
     time.sleep(1)
 
-    MediaMTX.start_recording("screen")
-    time.sleep(2)
     MediaMTX.start_recording("owl")
+    screen_recorder.start_recording(screen_rec_path)
     time.sleep(1)
     print('opening cyclesix platform and ampara pdf')
 
     state = State.CYCLE6_AMPARA
     current_page.browser_handler.browser.get(CFG_DICT['celfocus_cyclesix_url'])
     open_pdf_in_background(EXP_CFG.parent / 'ampara.pdf')
+
+target_text = 'Please go see the person responsible for the room'
 
 while True:
     if len(current_page.browser_handler.browser.window_handles) > 1:
@@ -82,6 +86,13 @@ while True:
         current_page.browser_handler.browser.switch_to.window(current_page.browser_handler.browser.window_handles[0])
         time.sleep(1)
 
+    if current_page.monitor_for_target_text(target_text):
+        print("Detected completion message.")
+        MediaMTX.stop_recording('owl')
+        screen_recorder.stop_recording()
+        time.sleep(10)
+        print("mediamtx will be terminated.")
+        screen_recorder.force_stop()
+        current_page.cleanup()
 
 # todo: do not close upon closing pdf
-z

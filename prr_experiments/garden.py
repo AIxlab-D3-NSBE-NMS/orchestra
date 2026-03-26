@@ -109,7 +109,7 @@ if current_page.browser_handler.wait_for_actual_click(
     print('Submitted business plan')
     submitted = True
 
-target_text = 'Please call the person responsible for the room to receive further instructions'
+target_text = 'Please go see the person responsible for the room'
 if current_page.monitor_for_target_text(target_text):
     print("Detected completion message.")
     screen_recorder.stop_recording()

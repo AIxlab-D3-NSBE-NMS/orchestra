@@ -1,0 +1,29 @@
+---
+- name: Deploy and run experiment scripts
+  hosts: prr_hosts
+  remote_user: participant
+  gather_facts: no
+  
+  vars:
+    remote_base_path: "/home/participant/Desktop"
+    display: ":0"
+  
+  tasks:
+    - name: Run cleanup script on remote machines
+      shell: |
+        cd {{ remote_base_path }}
+        bash cleanup_between_tasks.sh
+      args:
+        executable: /bin/bash
+      register: cleanup_result
+      ignore_errors: yes
+    
+    - name: Launch experiment script in background with DISPLAY
+      shell: |
+        cd {{ remote_base_path }}
+        DISPLAY={{ display }} nohup bash garden > /tmp/experiment_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+      args:
+        executable: /bin/bash
+      async: 1
+      poll: 0
+    

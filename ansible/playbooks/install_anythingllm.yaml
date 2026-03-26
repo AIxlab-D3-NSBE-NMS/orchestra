@@ -1,0 +1,48 @@
+---
+- name: Install AnythingLLM on remote machines
+  hosts: all
+  vars:
+    installer_url: "https://cdn.anythingllm.com/latest/installer.sh"
+    installer_file: "/tmp/installer.sh"
+    anythingllm_user: "{{ ansible_user }}"
+  
+  tasks:
+    - name: Create temporary directory for installer
+      file:
+        path: "{{ ansible_env.HOME }}/anythingllm-install"
+        state: directory
+        mode: '0755'
+
+    - name: Download AnythingLLM installer script
+      get_url:
+        url: "{{ installer_url }}"
+        dest: "{{ ansible_env.HOME }}/anythingllm-install/installer.sh"
+        mode: '0755'
+      register: download_result
+
+    - name: Run AnythingLLM installer (non-interactive, skip apparmor)
+      shell: |
+        cd {{ ansible_env.HOME }}/anythingllm-install
+        echo "yes" | SKIP_APPARMOR=1 ./installer.sh
+      environment:
+        SKIP_APPARMOR: "1"
+      register: installer_output
+
+    - name: Display installer output
+      debug:
+        msg: "{{ installer_output.stdout_lines }}"
+
+    - name: Clean up installer files
+      file:
+        path: "{{ ansible_env.HOME }}/anythingllm-install"
+        state: absent
+
+    - name: Verify AnythingLLM installation
+      shell: |
+        which anythingllm || command -v anythingllm || echo "Checking installation..."
+      register: verify_result
+      changed_when: false
+
+    - name: Display verification result
+      debug:
+        msg: "{{ verify_result.stdout }}"

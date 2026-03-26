@@ -2,9 +2,9 @@
   hosts: all
   become: true
   tasks:
-    - name: Install xdotool
+    - name: Install trash_cli
       ansible.builtin.apt:
         name: 
-          - xdotool
+          - trash-cli
         state: present
         update_cache: no
