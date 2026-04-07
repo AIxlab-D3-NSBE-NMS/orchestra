@@ -59,6 +59,7 @@ main() {
         else
             echo "[$(date '+%Y-%m-%d %H:%M:%S')] Recording attempt #$RESTART_ATTEMPT/$MAX_RESTART_ATTEMPTS" | tee -a "$LOG_FILE"
         fi
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] Re-capturing now..." | tee -a "$LOG_FILE"
         run_ffmpeg
         EXIT_CODE=$?
         echo "[$(date '+%Y-%m-%d %H:%M:%S')] FFmpeg exited with code: $EXIT_CODE" | tee -a "$LOG_FILE"
