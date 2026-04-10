@@ -18,6 +18,12 @@ get_camera_device() {
 INTEGRATED_CAM=$(get_camera_device "Integrated Camera")
 OWL_CAM=$(get_camera_device "Meeting Owl")
 
+
+BUS_DEVICE=$(lsusb | grep "2e43:0320" | awk '{print $2":"$4}' | tr -d ',')
+echo "Bus and Device: $BUS_DEVICE"
+ISERIAL=$(sudo lsusb -v -s $BUS_DEVICE 2>/dev/null | grep iSerial | awk '{print $3}')
+echo "Device iSerial: $ISERIAL"
+
 mkdir -p "$OUTPUT_DIR"
 cleanup() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Shutting down gracefully..." | tee -a "$LOG_FILE"
@@ -26,7 +32,7 @@ cleanup() {
 trap cleanup SIGINT SIGTERM
 get_output_file() {
     local timestamp=$(date '+%Y%m%d_%H%M%S')
-    echo "${OUTPUT_DIR}/owl_camera_${timestamp}.mkv"
+    echo "${OUTPUT_DIR}/owl_camera_${ISERIAL}_${timestamp}.mkv"
 }
 run_ffmpeg() {
     local output_file=$(get_output_file)
