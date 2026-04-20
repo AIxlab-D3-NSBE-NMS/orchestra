@@ -1,0 +1,19 @@
+- name: copy an arbitrary file to hosts
+  hosts: tianyi
+  become: false
+  tasks:
+    - name: copy file
+      ansible.builtin.copy:
+        src: /home/labadmin/aixlab/code/orchestra/tests/2026_owl_webcam/owl_c4_ffmpeg_with_overlay.sh
+        dest: /home/participant/Desktop/owl_c4_ffmpeg_with_overlay.sh
+        owner: participant
+        group: participant
+        mode: '0755'
+    - name: copy file
+      ansible.builtin.copy:
+        src: /home/labadmin/aixlab/code/orchestra/tests/2026_owl_webcam/webcam_c4_ffmpeg_with_overlay.sh
+        dest: /home/participant/Desktop/webcam_c4_ffmpeg_with_overlay.sh
+        owner: participant
+        group: participant
+        mode: '0755'
+

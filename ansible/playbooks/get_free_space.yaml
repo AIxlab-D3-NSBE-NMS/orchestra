@@ -1,0 +1,12 @@
+---
+- name: Get free disk space on each host
+  hosts: tianyi
+  tasks:
+    - name: Run df -h and capture output
+      ansible.builtin.command: df -h / --output=target,size,used,avail,pcent
+      register: df_output
+
+    - name: Parse and display free disk space
+      debug:
+        msg: "Host: {{ inventory_hostname }} | Free Disk Space (GB): {{ item.split()[3] }}"
+      loop: "{{ df_output.stdout_lines[1:] }}"
