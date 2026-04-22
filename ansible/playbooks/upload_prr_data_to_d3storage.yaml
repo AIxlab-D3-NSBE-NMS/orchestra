@@ -1,30 +1,24 @@
 - name: Copy 'stream' folder contents to Synology guest share
-  hosts: prr_hosts
+  hosts: tianyi
   gather_facts: yes
+  serial: 22  # Process 10 hosts at a time
   vars:
     synology_server: 192.168.10.201
-    synology_share: datadump/prr_data/raw
-    garden_dir: /data/garden/
-    cyclesix_dir: /data/cyclesix
-
+    synology_share: datadump
+    tianyi_dir: /data/owl_and_webcam
   tasks:
     - name: Random delay to avoid Synology collisions
       ansible.builtin.pause:
         seconds: "{{ 1 + (ansible_hostname | hash('sha256') | int(base=16) % 5) }}"
-    - name: Upload str contents to existing host folder on Synology
-      ansible.builtin.command: >
-        smbclient //{{ synology_server }}/{{ synology_share }} -N -c "lcd {{ garden_dir }}; cd {{ ansible_hostname }}; prompt; recurse; mput *"
+    
+    - name: Upload to datadump/tianyi/raw/{{ ansible_hostname }}
+      ansible.builtin.shell: |
+        smbclient //{{ synology_server }}/{{ synology_share }} -N \
+        -c "cd tianyi/raw; mkdir {{ ansible_hostname }}; cd {{ ansible_hostname }}; lcd {{ tianyi_dir }}; prompt; recurse; mput *"
       args:
-        chdir: "{{ garden_dir }}"
-      async: 600
-      poll: 0
-    - name: New Random delay to avoid Synology collisions
-      ansible.builtin.pause:
-        seconds: "{{ 1 + (ansible_hostname | hash('sha256') | int(base=16) % 5) }}"
-    - name: Upload stream contents to existing host folder on Synology
-      ansible.builtin.command: >
-        smbclient //{{ synology_server }}/{{ synology_share }} -N -c "lcd {{ cyclesix_dir }}; cd {{ ansible_hostname }}; prompt; recurse; mput *"
-      args:
-        chdir: "{{ cyclesix_dir }}"
-      async: 600
-      poll: 0
+        chdir: "{{ tianyi_dir }}"
+      register: upload_result
+    
+    - name: Show upload result for {{ ansible_hostname }}
+      ansible.builtin.debug:
+        msg: "{{ ansible_hostname }} upload completed: {{ upload_result.rc == 0 }}"
