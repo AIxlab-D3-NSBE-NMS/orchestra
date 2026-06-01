@@ -2,7 +2,7 @@ import typer
 from typing import Optional
 from rich.console import Console
 import requests
-import utils
+import maestro.maestro_utils as maestro_utils
 import json
 
 app = typer.Typer()
@@ -10,7 +10,7 @@ console = Console()
 
 @app.command()
 def isonline(ip_addr: str):
-    if utils.is_mediamtx_running(ip_addr):
+    if maestro_utils.is_mediamtx_running(ip_addr):
         console.print(f"mediaMTX is UP and running on {ip_addr}")
     else:
         console.print(f"{ip_addr} DOWN")

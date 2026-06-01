@@ -3,7 +3,7 @@ import streamlit as st
 import streamlit_antd_components as sac
 import requests
 import json
-import utils as mutils
+import maestro.maestro_utils as mutils
 import config as mconfig
 
 st.title("Orchestra Control Panel")

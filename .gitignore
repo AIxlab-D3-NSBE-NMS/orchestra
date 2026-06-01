@@ -3,3 +3,6 @@ notes
 *pyc
 .vscode/
 private/
+uv.lock
+pyproject.toml
+.webui_secret_key

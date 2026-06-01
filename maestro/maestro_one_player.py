@@ -140,9 +140,7 @@ for col, url in zip(cols, urls):
 
 pressed = st.button('Get MEDIAMTX Configuration')
 if pressed:
-    r = requests.get(mediamtx_url + '/v3/config/paths/list').json()
-    #r = requests.get('http://192.168.10.2:9997/v3/config/global/get').json()
-    print(r)
+    maestro_utils.get_path_record_status(ip_address, PATH)
 
 result_display = st.json(r)
 
