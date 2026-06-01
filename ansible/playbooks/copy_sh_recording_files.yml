@@ -1,5 +1,5 @@
 - name: copy an arbitrary file to hosts
-  hosts: tianyi
+  hosts: whitepaper
   become: false
   tasks:
     - name: copy file
@@ -16,4 +16,10 @@
         owner: participant
         group: participant
         mode: '0755'
-
+    - name: 'copy empty rec'
+      ansible.builtin.copy:
+        src: /home/labadmin/aixlab/code/orchestra/tests/2026_owl_webcam/owl_NULL_c4_ffmpeg_with_overlay.sh
+        dest: /home/participant/Desktop/owl_NULL_c4_ffmpeg_with_overlay.sh
+        owner: participant
+        group: participant
+        mode: '0755'

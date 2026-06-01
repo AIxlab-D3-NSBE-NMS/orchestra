@@ -6,3 +6,6 @@ private/
 uv.lock
 pyproject.toml
 .webui_secret_key
+demos/models/yolov7-w6-pose.pt
+demos/models/yolo26n-pose.pt
+demos/yolov7-w6-pose.pt 

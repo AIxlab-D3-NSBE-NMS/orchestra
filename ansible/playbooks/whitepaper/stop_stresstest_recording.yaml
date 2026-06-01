@@ -1,0 +1,25 @@
+- name: Terminate session scripts
+  hosts: whitepaper
+  become: no
+  ignore_unreachable: yes
+
+  tasks:
+    - name: Kill by process name (catches child processes)
+      shell: "pgrep -f {{ item }} | xargs -r kill -9"
+      loop:
+        - owl_c4_ffmpeg_with_overlay.sh
+        - ffmpeg
+      ignore_errors: yes
+
+    - name: Clean up remote PID files
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /tmp/owl_pid.txt
+
+    - name: Clean up local PID file
+      local_action:
+        module: file
+        path: ./session_pids.txt
+        state: absent
