@@ -1,5 +1,21 @@
+"""
+Relay frames from one V4L2 camera device to a loopback webcam device.
+
+Inputs:
+    input_device and output_device constants, usually physical /dev/video0
+    and a v4l2loopback device such as /dev/video11.
+
+Expected output:
+    Continuously copies frames to the virtual webcam until interrupted.
+"""
+
 import cv2
 import numpy as np
+import sys
+
+if any(arg in {"-h", "--help"} for arg in sys.argv[1:]):
+    print(__doc__.strip())
+    raise SystemExit(0)
 
 # Input webcam device
 input_device = "/dev/video0"

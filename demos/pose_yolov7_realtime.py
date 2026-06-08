@@ -5,6 +5,18 @@ This demo needs both:
 1. the YOLOv7 pose checkpoint, and
 2. the YOLOv7 source tree, because the checkpoint unpickles classes from
    the original repository such as `models.yolo`.
+
+Inputs:
+    --model: path to yolov7-w6-pose.pt.
+    --yolov7-dir: path to the YOLOv7 source checkout.
+    --camera: OpenCV camera index.
+    --img-size: square preprocessing size.
+    --conf-thresh: minimum person confidence.
+    --no-download-source: disable automatic YOLOv7 source download.
+
+Expected output:
+    Opens a webcam window with YOLOv7 pose skeletons and a pose count.
+    Downloads missing trusted YOLOv7 assets unless disabled.
 """
 
 from __future__ import annotations

@@ -1,3 +1,15 @@
+"""
+Core helpers for browser-led PRR experiments and screen/media recording.
+
+Inputs:
+    MediaMTX API host/path names, Selenium locators, page URLs, and ffmpeg
+    screen-capture settings.
+
+Expected output:
+    Starts/stops MediaMTX recording, drives Chromium experiment pages, sends
+    participant prompts, and records the desktop through ffmpeg helpers.
+"""
+
 import undetected_chromedriver as uc
 from selenium import webdriver  # to control the browser
 #from selenium.webdriver.chrome.service import Service
@@ -711,6 +723,9 @@ class ScreenRecorder:
 
 
 def main():
+    if any(arg in {"-h", "--help"} for arg in sys.argv[1:]):
+        print(__doc__.strip())
+        return True
     return True
 
 if __name__ == "__main__":

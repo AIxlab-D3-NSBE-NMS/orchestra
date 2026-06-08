@@ -1,5 +1,15 @@
 """
 Realtime pose detection demo for Ultralytics pose models such as yolo26n-pose.
+
+Inputs:
+    --model: path to an Ultralytics pose checkpoint.
+    --camera: OpenCV camera index.
+    --img-size: inference image size.
+    --conf-thresh: minimum detection confidence.
+
+Expected output:
+    Opens a webcam window with pose overlays and a live pose count.
+    Prints model/camera errors to the terminal and exits non-zero on failure.
 """
 
 from __future__ import annotations

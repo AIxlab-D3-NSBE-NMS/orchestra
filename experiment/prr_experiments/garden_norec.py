@@ -1,3 +1,15 @@
+"""
+Run the Garden PRR experiment without screen recording.
+
+Inputs:
+    prr_experiments/private/PRR_CONFIG.yaml with welcome, consent, Qualtrics,
+    Garden URLs, allowed duration, and notification timings.
+
+Expected output:
+    Opens the welcome/consent flow, monitors Garden task progress, shows time
+    prompts, and cleans up after the completion message.
+"""
+
 import datetime
 import os
 import pdb
@@ -11,6 +23,10 @@ import yaml
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+
+if any(arg in {"-h", "--help"} for arg in sys.argv[1:]):
+    print(__doc__.strip())
+    raise SystemExit(0)
 
 experiment_path = Path(__file__).parent.parent / "experiment"
 sys.path.insert(0, str(experiment_path))

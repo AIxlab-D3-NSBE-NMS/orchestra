@@ -1,3 +1,17 @@
+"""
+Qt realtime demo for facial emotion detection with synchronized media playback.
+
+Inputs:
+    --camera, --fps, --width, --height: OpenCV capture settings.
+    --emotion-fps, --emotion-ttl, --emotion-overlay-scale: emotion overlay timing.
+    --enable-pose, --pose-fps, --pose-ttl: optional MediaPipe pose settings.
+    --media, --media-alpha, --media-volume: optional playback overlay settings.
+
+Expected output:
+    Opens a Qt window with camera video, emotion overlays, optional pose
+    landmarks, optional media playback, and terminal session statistics.
+"""
+
 import argparse
 import math
 import sys

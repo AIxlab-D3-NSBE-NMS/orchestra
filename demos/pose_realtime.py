@@ -6,6 +6,17 @@ instead of the legacy `mediapipe.solutions` package.
 Usage:
     uv run python prr/demos/pose_realtime.py --model /path/to/pose_landmarker.task
     uv run python prr/demos/pose_realtime.py --model ./models/pose_landmarker.task --camera 1
+
+Inputs:
+    --model: required MediaPipe .task pose model.
+    --camera: OpenCV camera index.
+    --width/--height: requested capture size.
+    --min-*-confidence: detection, presence, and tracking thresholds.
+    --num-poses: maximum tracked poses.
+
+Expected output:
+    Opens a live camera window with MediaPipe pose landmarks.
+    Prints camera/model errors to stderr and returns 1 on failure.
 """
 
 from __future__ import annotations

@@ -2,9 +2,15 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 """
-Wrapper / handler for mediamtx 
+Wrapper / handler for MediaMTX stream acquisition.
 
-mediamtx should be added to the system path or ohterwise 
+Inputs:
+    MediaMTX must be installed on PATH and stream.streamer must be importable.
+    Concrete subclasses should provide stream names and recording directories.
+
+Expected output:
+    Provides a placeholder Signals interface for initializing streams and
+    starting/stopping recordings.
 """
 
 import os

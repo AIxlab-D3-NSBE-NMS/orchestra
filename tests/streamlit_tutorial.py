@@ -1,7 +1,24 @@
+"""
+Streamlit control panel for MediaMTX recording status and stream previews.
+
+Inputs:
+    Host/IP constants, MediaMTX API port, streaming port, path names, and JSON
+    patch files under tests/.
+
+Expected output:
+    Displays recording status, toggles MediaMTX recording, embeds stream
+    previews, and shows configuration diagnostics in the Streamlit app.
+"""
+
 import pandas as pd  
 import streamlit as st 
 import requests
 import json
+import sys
+
+if any(arg in {"-h", "--help"} for arg in sys.argv[1:]):
+    print(__doc__.strip())
+    raise SystemExit(0)
 
 
 cols = st.columns(3, gap='small')

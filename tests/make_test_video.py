@@ -1,4 +1,17 @@
+"""
+Generate a black/white test video with periodic Ekman emotion word flashes.
+
+Inputs:
+    Edit module constants for width, height, fps, duration_seconds,
+    flash_interval, DRY_RUN, and the output AVI path.
+
+Expected output:
+    Writes an AVI test video, prints the flash count and done, then displays
+    the last white frame with matplotlib.
+"""
+
 from csv import DictReader
+import sys
 import matplotlib
 # matplotlib.use("qtagg")
 matplotlib.use("tkagg")
@@ -8,6 +21,10 @@ import numpy as np
 from tqdm import tqdm
 import numpy as np
 import random
+
+if any(arg in {"-h", "--help"} for arg in sys.argv[1:]):
+    print(__doc__.strip())
+    raise SystemExit(0)
 
 # Video settings
 DRY_RUN = False

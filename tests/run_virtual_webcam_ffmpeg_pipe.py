@@ -1,6 +1,22 @@
+"""
+Send webcam frames through ffmpeg to a V4L2 loopback device with timestamps.
+
+Inputs:
+    W, H, FPS constants, camera index 0, optional logo image, and output
+    loopback device /dev/video10 in the ffmpeg command.
+
+Expected output:
+    Streams timestamped frames to the virtual webcam until capture stops.
+"""
+
 import cv2
 import subprocess
 import datetime
+import sys
+
+if any(arg in {"-h", "--help"} for arg in sys.argv[1:]):
+    print(__doc__.strip())
+    raise SystemExit(0)
 
 W, H, FPS = 640, 480, 30
 

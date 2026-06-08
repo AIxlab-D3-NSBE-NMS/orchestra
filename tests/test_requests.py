@@ -1,5 +1,20 @@
+"""
+Probe and patch MediaMTX API path configuration for manual testing.
+
+Inputs:
+    Hard-coded MediaMTX API URLs and local JSON output/input file paths.
+
+Expected output:
+    Writes path configuration JSON files and patches the owl path from disk.
+"""
+
 import requests
 import json
+import sys
+
+if any(arg in {"-h", "--help"} for arg in sys.argv[1:]):
+    print(__doc__.strip())
+    raise SystemExit(0)
 # url = 'http://192.168.10.2:9997/v3/config/global/get'
 url = 'http://192.168.10.2:9997/v3/config/paths/list'
 

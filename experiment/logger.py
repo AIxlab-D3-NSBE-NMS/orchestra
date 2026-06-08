@@ -5,6 +5,13 @@
 """
 Logger class for logging messages to a file.
 This class provides methods to log messages and set a custom log file.
+
+Inputs:
+    log_file: destination text file path.
+    message: one log line written by log().
+
+Expected output:
+    Appends messages to the configured log file, one line at a time.
 """
 class Logger():
 

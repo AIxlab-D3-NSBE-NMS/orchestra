@@ -1,3 +1,17 @@
+"""
+Realtime webcam demo for facial emotion detection with optional pose overlay.
+
+Inputs:
+    --camera, --fps, --width, --height: OpenCV capture settings.
+    --skipframes, --emotion-fps, --emotion-ttl: emotion inference cadence.
+    --enable-pose, --pose-fps, --pose-ttl: optional MediaPipe pose settings.
+    --media: optional media file played with ffplay when pressing v.
+
+Expected output:
+    Opens an OpenCV window with face boxes, emotion bars, a rolling plot,
+    optional pose landmarks, and terminal session statistics on exit.
+"""
+
 import argparse
 import math
 import shutil

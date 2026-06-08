@@ -1,3 +1,15 @@
+"""
+Run the Cycle 6 PRR experiment with MediaMTX and screen recording enabled.
+
+Inputs:
+    prr_experiments/private/PRR_CONFIG.yaml with consent, platform, and asset
+    paths; MediaMTX record_cyclesix.yaml; evince for the Ampara PDF.
+
+Expected output:
+    Opens consent and Cycle 6 pages, starts owl and screen recording after
+    consent, opens the Ampara PDF, then stops recordings at completion text.
+"""
+
 import pdb
 import sys
 from pathlib import Path
@@ -13,6 +25,10 @@ import time
 import datetime
 import threading
 import subprocess
+
+if any(arg in {"-h", "--help"} for arg in sys.argv[1:]):
+    print(__doc__.strip())
+    raise SystemExit(0)
 
 class State(IntEnum):
     CYCLE6_DEBRIEF          = 0

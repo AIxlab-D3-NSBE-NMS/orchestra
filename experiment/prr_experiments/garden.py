@@ -1,3 +1,15 @@
+"""
+Run the Garden PRR experiment with screen recording enabled.
+
+Inputs:
+    prr_experiments/private/PRR_CONFIG.yaml with welcome, consent, Qualtrics,
+    Garden URLs, allowed duration, and notification timings.
+
+Expected output:
+    Opens the welcome/consent flow, records the screen during the Garden task,
+    shows time prompts, and stops recording after the completion message.
+"""
+
 import pdb
 import os
 import sys
@@ -10,6 +22,10 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 import datetime
 import threading
+
+if any(arg in {"-h", "--help"} for arg in sys.argv[1:]):
+    print(__doc__.strip())
+    raise SystemExit(0)
 
 
 experiment_path = Path(__file__).parent.parent / "experiment"
