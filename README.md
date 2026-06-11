@@ -14,6 +14,7 @@ Folder structure:
 
 
 | File  | Use  |
+|-------|------|
 | README.md               | The file you're reading  |
 | LICENSE                 | [Simplified BSD License](https://opensource.org/license/bsd-2-clause) |
 | setup.py                | setup file to install repo (can be run without installing ofc) |
